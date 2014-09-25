@@ -1,0 +1,89 @@
+.outer {
+  bottom: 37px;
+  position: relative;
+}
+.turn{
+  font-size: 2rem;
+  left: 27%;
+  bottom: 19%;
+  position: absolute;
+}
+
+.score-info {
+  padding: 4px;
+}
+
+.messages {
+  position: absolute;
+  top: 2vw;
+  width: 100%;
+  font-size: 21px;
+  color: white;
+  text-align: center;
+}
+
+.team-info {
+  top: 0;
+  width: 16vw;
+  position: absolute;
+}
+
+.diamond-display {
+  max-height: 2vw;
+}
+
+.t-blue {
+  right: 0;
+}
+
+.t-yellow {
+  left: 0;
+}
+
+.stat-names {
+  word-spacing: 1.7rem;
+}
+
+.dead-info {
+  color: red; 
+}
+
+.range-bar {
+  margin: 0 auto;
+  width: 43%;
+  bottom: 6vw;
+}
+
+.range-handle {
+  bottom: 10px;
+  height: 28px;
+  width: 29px;
+  right: 20px;
+  background-color: transparent;
+  top: -13px;
+  position: absolute;
+  background-image: url('../img/sword.png');
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  border-radius: 0; 
+}
+
+.play-controls {
+  position: relative;
+  text-align: center;
+  border: solid 5px white;
+  border-radius: 15px;
+  width: 10%;
+  bottom: 5.6vw;
+  margin: 0 auto;
+  .glyphicon {
+    font-size: 2em;
+    margin: 8% 8%; 
+  }
+}
+
+.hero-header {
+  span {
+    font-weight: bold;
+  }
+}

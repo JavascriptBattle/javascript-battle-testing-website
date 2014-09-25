@@ -1,0 +1,26 @@
+{
+  "name": "javascript-battle-website",
+  "version": "0.0.0",
+  "homepage": "https://github.com/JavascriptBattle/javascript-battle-website",
+  "authors": [],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "public/lib",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "powerange": "~0.0.2",
+    "backbone": "~1.1.2",
+    "jquery": "~2.1.1",
+    "lodash": "~2.4.1",
+    "font-awesome": "~4.1.0",
+    "bower": "*",
+    "bootstrap": "~3.2.0",
+    "chartjs": "~0.2.0",
+    "bootstrap-social": "~4.6.0"
+  }
+}
