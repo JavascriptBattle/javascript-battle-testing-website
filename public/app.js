@@ -14,6 +14,3 @@ $('.navbar').append(app.navbarView.$el);
 app.rulesView = new RulesView({ model: app.user });
 $('#rules').append(app.rulesView.$el);
 
-app.leaderboard = new Leaderboard();
-app.leaderboardView = new LeaderboardView({ model: app.leaderboard });
-$('#leaderboard div.container').append(app.leaderboardView.$el);

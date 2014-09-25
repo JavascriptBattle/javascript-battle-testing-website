@@ -55,29 +55,6 @@ router.get('/gameDataForUser/:turn', function(req, res) {
   });
 });
 
-//Returns the leaderboard data for the specified time period and stat
-router.get('/leaderboard/:timePeriod/:stat', function(req, res) {
-  var timePeriod = req.params.timePeriod;
-  var stat = req.params.stat;
-
-  jsBattleConnection.getConnection().then(function(db) {
-    var collection = db.collection('leaderboard');
-    var id = timePeriod + '|' + stat;
-    collection.findOne({
-      '_id': id
-    }, function(err, results) {
-      if (err) {
-        res.send(err);
-        return;
-      }
-      res.send(results);
-    });
-  }).catch(function(err) {
-    //If something goes wrong, respond with error
-    res.send(err);
-  });
-});
-
 
 // Set root route for app's data
 app.use('/api', router);
