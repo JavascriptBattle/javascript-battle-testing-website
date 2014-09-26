@@ -14,3 +14,6 @@ $('.navbar').append(app.navbarView.$el);
 app.rulesView = new RulesView({ model: app.user });
 $('#rules').append(app.rulesView.$el);
 
+var testGame = require('./game_classes/Game.js');
+var testing = new testGame(12);
+console.log(testing)

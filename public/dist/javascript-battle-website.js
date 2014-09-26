@@ -78,7 +78,8 @@ var Board = Backbone.Collection.extend({
 });
 ;
 var Game = Backbone.Model.extend({
-  url: 'api/gameDataForUser/1',
+
+  clientSideGame: {},
 
   initialize: function() {
     var userModel = new User();
@@ -134,7 +135,7 @@ var Game = Backbone.Model.extend({
     this.set('board', board);
   },
   updateTurn: function(turn) {
-    this.url = '/api/gameDataForUser/' + turn;
+    return this.clientSideGame[turn];
   }
 });;var GameView = Backbone.View.extend({
   tagName: 'div',
@@ -190,28 +191,8 @@ var Game = Backbone.Model.extend({
     this.$el.find('.turn').text('Turn: ' + this.model.get('turn'));
   },
   updateTurn: function(turn) {
-    this.model.updateTurn(turn); 
-    return this.model.fetch({
-      success: function() {
-        this.initializeSlider();
-        var userModel = this.model.get('userModel');
-        userModel.fetch({
-          success: function() {
-            this.render();
-            var currentUserHandle = userModel.get('githubHandle');
-            if (currentUserHandle) {
-              this.$el.find('.current-user-' + currentUserHandle).append('<span class="arrow"></span>');
-            }
-          }.bind(this),
-          error: function(collection, response, options){
-            this.initializeSlider();
-            this.render();
-          }.bind(this)    
-        });
-      }.bind(this),
-      error: function(collection, response, options){
-      }.bind(this)
-    });
+    turn += '';
+    this.model.clientSideGame[turn]
   },
   sendSliderToTurn: function(turn) {
     //The "track" the sword slides along
@@ -794,3 +775,6 @@ $('.navbar').append(app.navbarView.$el);
 app.rulesView = new RulesView({ model: app.user });
 $('#rules').append(app.rulesView.$el);
 
+var testGame = require('./game_classes/Game.js');
+var testing = new testGame(12);
+console.log(testing)

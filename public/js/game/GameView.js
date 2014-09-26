@@ -52,28 +52,8 @@ var GameView = Backbone.View.extend({
     this.$el.find('.turn').text('Turn: ' + this.model.get('turn'));
   },
   updateTurn: function(turn) {
-    this.model.updateTurn(turn); 
-    return this.model.fetch({
-      success: function() {
-        this.initializeSlider();
-        var userModel = this.model.get('userModel');
-        userModel.fetch({
-          success: function() {
-            this.render();
-            var currentUserHandle = userModel.get('githubHandle');
-            if (currentUserHandle) {
-              this.$el.find('.current-user-' + currentUserHandle).append('<span class="arrow"></span>');
-            }
-          }.bind(this),
-          error: function(collection, response, options){
-            this.initializeSlider();
-            this.render();
-          }.bind(this)    
-        });
-      }.bind(this),
-      error: function(collection, response, options){
-      }.bind(this)
-    });
+    turn += '';
+    this.model.clientSideGame[turn]
   },
   sendSliderToTurn: function(turn) {
     //The "track" the sword slides along
