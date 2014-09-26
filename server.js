@@ -12,8 +12,7 @@ var port = process.env.port || 8080;
 var productionMode = process.env.PRODUCTION_MODE || 'local';
 var secondsBetweenRefresh = process.env.SECONDS_BETWEEN_REFRESH || 120;
 var mongoConnectionUrl = process.env.CUSTOMCONNSTR_MONGO_URI || 'mongodb://localhost/javascriptBattle';
-console.log(productionMode)
-console.log(secondsBetweenRefresh)
+
 //Connection to database will refresh every 2 minutes (120 seconds)
 var jsBattleConnection = new JsBattleConnection(mongoConnectionUrl, secondsBetweenRefresh);
 
