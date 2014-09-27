@@ -3,9 +3,38 @@ var Game = Backbone.Model.extend({
 
   clientSideGame: {},
 
+  setupGame: function(game, boardSize) {
+    var randomNumber = function(max) {
+      return Math.floor(Math.random()*max);
+    };
+
+    for (var i=0; i<12; i++) {
+      while (!game.addHero(randomNumber(boardSize), randomNumber(boardSize), 'random', 0)) {
+        //Loops until each hero is successfully added
+      }
+    }
+
+    for (var i=0; i<12; i++) {
+      while (!game.addHero(randomNumber(boardSize), randomNumber(boardSize), 'random', 1)) {
+        //Loops until each hero is successfully added
+      }
+    }
+    for (var i=0; i<6; i++) {
+      game.addHealthWell(randomNumber(boardSize), randomNumber(boardSize));
+    }
+    for (var i=0; i<18; i++) {
+      game.addImpassable(randomNumber(boardSize), randomNumber(boardSize));
+    }
+    for (var i=0; i<12; i++) {
+      game.addDiamondMine(randomNumber(boardSize), randomNumber(boardSize));
+    }
+
+    var maxTurn = 2000;
+    game.maxTurn = maxTurn;
+  },
+
   runGame: function() {
-    var result = $('#file-upload').val();
-    console.log(open(result));
+
   },
 
   initialize: function() {
@@ -26,9 +55,10 @@ var Game = Backbone.Model.extend({
     var board = new Board();
 
     board.lengthOfSide = this.clientSideGame[turnNumber].board.lengthOfSide;
+    this.setupGame(this.clientSideGame[turnNumber], board.lengthOfSide);
     //add team yellow hero Models to team collection
-    _.each(this.clientSideGame[turnNumber].teams[0], function(heroObject){
-      heroObject.gameTurn = this.clientSideGame[turnNumber].turn;
+    _.each(this.clientSideGame[turnNumber].teams[0], function(heroObject, key, col){
+      heroObject.gameTurn = turnNumber;
       heroObject.battleId = heroObject.id;
       delete heroObject.id;
 
@@ -37,7 +67,7 @@ var Game = Backbone.Model.extend({
     });
     //add team blue hero Models to team collection
     _.each(this.clientSideGame[turnNumber].teams[1], function(heroObject){
-      heroObject.gameTurn = this.clientSideGame[turnNumber].turn;
+      heroObject.gameTurn = turnNumber;
       heroObject.battleId = heroObject.id;
       delete heroObject.id;
 
@@ -60,8 +90,5 @@ var Game = Backbone.Model.extend({
     this.set('teamYellow', teamYellow);
     this.set('teamBlue', teamBlue);
     this.set('board', board);
-  },
-  updateTurn: function(turn) {
-    return this.clientSideGame[turn];
   }
 });
