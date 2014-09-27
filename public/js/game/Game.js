@@ -13,22 +13,22 @@ var Game = Backbone.Model.extend({
     this.set('userModel', userModel);
   },
   
-  parse: function(response) {
-    this.set('turn', response.turn);
-    this.set('maxTurn', response.maxTurn);
-    this.set('moveMessages', response.moveMessage);
-    this.set('winningTeam', response.winningTeam);
-    this.set('attackMessages', response.attackMessage);
-    this.set('killMessages', response.killMessage);
-    this.set('teamDiamonds', response.totalTeamDiamonds);
-    var board = new Board();
+  gameSet: function(turnNumber) {
+    this.set('turn', this.clientSideGame[turnNumber].turn);
+    this.set('maxTurn', this.clientSideGame[turnNumber].maxTurn);
+    this.set('moveMessages', this.clientSideGame[turnNumber].moveMessage);
+    this.set('winningTeam', this.clientSideGame[turnNumber].winningTeam);
+    this.set('attackMessages', this.clientSideGame[turnNumber].attackMessage);
+    this.set('killMessages', this.clientSideGame[turnNumber].killMessage);
+    this.set('teamDiamonds', this.clientSideGame[turnNumber].totalTeamDiamonds);
     var teamYellow = new Team();
     var teamBlue = new Team();
+    var board = new Board();
 
-    board.lengthOfSide = response.board.lengthOfSide;
+    board.lengthOfSide = this.clientSideGame[turnNumber].board.lengthOfSide;
     //add team yellow hero Models to team collection
-    _.each(response.teams[0], function(heroObject){
-      heroObject.gameTurn = response.turn;
+    _.each(this.clientSideGame[turnNumber].teams[0], function(heroObject){
+      heroObject.gameTurn = this.clientSideGame[turnNumber].turn;
       heroObject.battleId = heroObject.id;
       delete heroObject.id;
 
@@ -36,8 +36,8 @@ var Game = Backbone.Model.extend({
       teamYellow.add(hero);
     });
     //add team blue hero Models to team collection
-    _.each(response.teams[1], function(heroObject){
-      heroObject.gameTurn = response.turn;
+    _.each(this.clientSideGame[turnNumber].teams[1], function(heroObject){
+      heroObject.gameTurn = this.clientSideGame[turnNumber].turn;
       heroObject.battleId = heroObject.id;
       delete heroObject.id;
 
@@ -47,7 +47,7 @@ var Game = Backbone.Model.extend({
 
     
 
-    _.each(_.flatten(response.board.tiles), function(tileObject, key, list) {
+    _.each(_.flatten(this.clientSideGame[turnNumber].board.tiles), function(tileObject, key, list) {
       //The id from our game model was overwriting 
       tileObject.battleId = tileObject.id;
       delete tileObject.id;

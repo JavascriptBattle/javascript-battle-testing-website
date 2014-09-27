@@ -63,6 +63,7 @@ var Board = Backbone.Collection.extend({
     this.createBoardView();
   },
   createBoardView: function() {
+    console.log(this)
   	var boardLength = this.collection.lengthOfSide;
     for(var i = 0; i < boardLength; i++){
       var $tr = $('<div class="tile-row">');
@@ -82,10 +83,12 @@ var Game = Backbone.Model.extend({
   clientSideGame: {},
 
   runGame: function() {
-    
+    var result = $('#file-upload').val();
+    console.log(open(result));
   },
 
   initialize: function() {
+    console.log(this)
     var userModel = new User();
     this.set('userModel', userModel);
   },
@@ -98,7 +101,6 @@ var Game = Backbone.Model.extend({
     this.set('attackMessages', response.attackMessage);
     this.set('killMessages', response.killMessage);
     this.set('teamDiamonds', response.totalTeamDiamonds);
-    var board = new Board();
     var teamYellow = new Team();
     var teamBlue = new Team();
 
@@ -145,7 +147,9 @@ var Game = Backbone.Model.extend({
   tagName: 'div',
   className: 'outer',
   initialize: function(){
+    var boardView = new BoardView({collection: this.model.get('board')});
     this.updateTurn(0);
+    console.log(this);
     this.paused = true;
     this.playInProgress = false;
     this.sliderInitialized = false;
@@ -766,6 +770,8 @@ $('.navbar-collapse ul li a').click(function() {
 });;var app = {};
 
 app.game = new Game();
+var initialGame = require('./game_classes/Game.js');
+app.game.clientSideGame['0'] = new initialGame(12);
 app.gameView = new GameView({ model: app.game });
 $('.gamegrid-content').append(app.gameView.$el);
 
@@ -779,6 +785,4 @@ $('.navbar').append(app.navbarView.$el);
 app.rulesView = new RulesView({ model: app.user });
 $('#rules').append(app.rulesView.$el);
 
-var testGame = require('./game_classes/Game.js');
-var testing = new testGame(12);
-console.log(testing)
+

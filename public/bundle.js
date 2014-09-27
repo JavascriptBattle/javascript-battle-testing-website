@@ -2,6 +2,9 @@
 var app = {};
 
 app.game = new Game();
+var initialGame = require('./game_classes/Game.js');
+app.game.clientSideGame['setup'] = new initialGame(12);
+
 app.gameView = new GameView({ model: app.game });
 $('.gamegrid-content').append(app.gameView.$el);
 
@@ -15,9 +18,7 @@ $('.navbar').append(app.navbarView.$el);
 app.rulesView = new RulesView({ model: app.user });
 $('#rules').append(app.rulesView.$el);
 
-var testGame = require('./game_classes/Game.js');
-var testing = new testGame(12);
-console.log(testing)
+
 
 },{"./game_classes/Game.js":4}],2:[function(require,module,exports){
 var Unoccupied = require('./Unoccupied.js');

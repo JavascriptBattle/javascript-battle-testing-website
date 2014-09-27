@@ -2,7 +2,7 @@ var GameView = Backbone.View.extend({
   tagName: 'div',
   className: 'outer',
   initialize: function(){
-    this.updateTurn(0);
+    this.updateTurn('setup');
     this.paused = true;
     this.playInProgress = false;
     this.sliderInitialized = false;
@@ -16,6 +16,7 @@ var GameView = Backbone.View.extend({
                       '</span>' +
                     '</div>');
     this.$el.append('<span class="turn"></span>');
+    this.render()
   },
   events: {
     'click .play-pause-game': 'togglePlayGame',
@@ -23,6 +24,7 @@ var GameView = Backbone.View.extend({
   },
   render: function(){
     this.checkWinner();
+    this.model.gameSet('setup');
     var $gameHtml = this.$el.find('.map');
     $gameHtml.html('');
     //Show game update messages
