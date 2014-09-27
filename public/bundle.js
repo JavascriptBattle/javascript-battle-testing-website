@@ -15,7 +15,7 @@ $('#join').append(app.userView.$el);
 app.navbarView = new NavbarView({ model: app.user });
 $('.navbar').append(app.navbarView.$el);
 
-app.rulesView = new RulesView({ model: app.user });
+app.rulesView = new RulesView({ model: app.game });
 $('#rules').append(app.rulesView.$el);
 
 

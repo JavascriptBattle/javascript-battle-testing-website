@@ -34,7 +34,14 @@ var Game = Backbone.Model.extend({
   },
 
   runGame: function() {
-
+    var move = this.get('heroCode');
+    var helpers = this.get('helperCode');
+    var start = move.indexOf('module.exports = move');
+    move = move.split('');
+    move.splice(start, 22);
+    move = move.join('');
+    var test = eval(move + 'move();');
+    console.log(test)
   },
 
   initialize: function() {

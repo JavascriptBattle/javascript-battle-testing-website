@@ -16,10 +16,10 @@ var GameView = Backbone.View.extend({
                       '</span>' +
                     '</div>');
     this.$el.append('<span class="turn"></span>');
-    this.render()
+    this.render();
   },
   events: {
-    'click .play-pause-game': 'togglePlayGame',
+    'click .play-pause-game': 'testGame',
     'click .restart-game': 'restartGame'
   },
   render: function(){
@@ -53,6 +53,11 @@ var GameView = Backbone.View.extend({
     $gameHtml.append(blueTeamView.$el);
     this.$el.find('.turn').text('Turn: ' + this.model.get('turn'));
   },
+
+  testGame: function() {
+    this.model.runGame();
+  },
+
   updateTurn: function(turn) {
     this.model.clientSideGame[turn];
   },

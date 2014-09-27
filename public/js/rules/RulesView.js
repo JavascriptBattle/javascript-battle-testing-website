@@ -3,14 +3,13 @@ var RulesView = Backbone.View.extend({
   initialize: function(){
     this.viewing = {};
     this.viewing = "rules";
-    console.log(this.model)
     this.render();
   },
 
   events: {
     'click .rules': 'showRules',
-    'change #hero': 'getFiles',
-    'click #helper': 'getOther'
+    'change #hero': 'getHeroCode',
+    'change #helper': 'getHelperCode'
   },
 
   showRules: function(event) {
@@ -28,7 +27,7 @@ var RulesView = Backbone.View.extend({
     this.$el.html(html);
   },
 
-  getFiles: function() {
+  getHeroCode: function() {
     var reader = new FileReader();
     var file = this.$el.find('#hero')[0].files[0];
     var that = this;
@@ -39,8 +38,14 @@ var RulesView = Backbone.View.extend({
 
   },
 
-  getOther: function() {
-    console.log(this.model.get('heroCode'));
+  getHelperCode: function() {
+    var reader = new FileReader();
+    var file = this.$el.find('#helper')[0].files[0];
+    var that = this;
+    reader.onload = function(e) {
+      that.model.set('helperCode', reader.result);
+    };
+    reader.readAsText(file);
   }
 
 
