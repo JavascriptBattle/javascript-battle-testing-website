@@ -53,7 +53,7 @@ var GameView = Backbone.View.extend({
   },
   updateTurn: function(turn) {
     turn += '';
-    this.model.clientSideGame[turn]
+    this.model.clientSideGame[turn];
   },
   sendSliderToTurn: function(turn) {
     //The "track" the sword slides along

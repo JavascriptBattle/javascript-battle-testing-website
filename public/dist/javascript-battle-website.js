@@ -81,6 +81,10 @@ var Game = Backbone.Model.extend({
 
   clientSideGame: {},
 
+  runGame: function() {
+    
+  },
+
   initialize: function() {
     var userModel = new User();
     this.set('userModel', userModel);
@@ -192,7 +196,7 @@ var Game = Backbone.Model.extend({
   },
   updateTurn: function(turn) {
     turn += '';
-    this.model.clientSideGame[turn]
+    this.model.clientSideGame[turn];
   },
   sendSliderToTurn: function(turn) {
     //The "track" the sword slides along

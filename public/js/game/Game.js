@@ -3,6 +3,11 @@ var Game = Backbone.Model.extend({
 
   clientSideGame: {},
 
+  runGame: function() {
+    var result = $('#file-upload').val();
+    console.log(open(result));
+  },
+
   initialize: function() {
     var userModel = new User();
     this.set('userModel', userModel);
