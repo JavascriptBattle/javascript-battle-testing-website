@@ -63,6 +63,7 @@ var Board = Backbone.Collection.extend({
     this.createBoardView();
   },
   createBoardView: function() {
+    console.log(this)
   	var boardLength = this.collection.lengthOfSide;
     for(var i = 0; i < boardLength; i++){
       var $tr = $('<div class="tile-row">');
@@ -78,9 +79,16 @@ var Board = Backbone.Collection.extend({
 });
 ;
 var Game = Backbone.Model.extend({
-  url: 'api/gameDataForUser/1',
+
+  clientSideGame: {},
+
+  runGame: function() {
+    var result = $('#file-upload').val();
+    console.log(open(result));
+  },
 
   initialize: function() {
+    console.log(this)
     var userModel = new User();
     this.set('userModel', userModel);
   },
@@ -93,7 +101,6 @@ var Game = Backbone.Model.extend({
     this.set('attackMessages', response.attackMessage);
     this.set('killMessages', response.killMessage);
     this.set('teamDiamonds', response.totalTeamDiamonds);
-    var board = new Board();
     var teamYellow = new Team();
     var teamBlue = new Team();
 
@@ -134,13 +141,15 @@ var Game = Backbone.Model.extend({
     this.set('board', board);
   },
   updateTurn: function(turn) {
-    this.url = '/api/gameDataForUser/' + turn;
+    return this.clientSideGame[turn];
   }
 });;var GameView = Backbone.View.extend({
   tagName: 'div',
   className: 'outer',
   initialize: function(){
+    var boardView = new BoardView({collection: this.model.get('board')});
     this.updateTurn(0);
+    console.log(this);
     this.paused = true;
     this.playInProgress = false;
     this.sliderInitialized = false;
@@ -190,28 +199,8 @@ var Game = Backbone.Model.extend({
     this.$el.find('.turn').text('Turn: ' + this.model.get('turn'));
   },
   updateTurn: function(turn) {
-    this.model.updateTurn(turn); 
-    return this.model.fetch({
-      success: function() {
-        this.initializeSlider();
-        var userModel = this.model.get('userModel');
-        userModel.fetch({
-          success: function() {
-            this.render();
-            var currentUserHandle = userModel.get('githubHandle');
-            if (currentUserHandle) {
-              this.$el.find('.current-user-' + currentUserHandle).append('<span class="arrow"></span>');
-            }
-          }.bind(this),
-          error: function(collection, response, options){
-            this.initializeSlider();
-            this.render();
-          }.bind(this)    
-        });
-      }.bind(this),
-      error: function(collection, response, options){
-      }.bind(this)
-    });
+    turn += '';
+    this.model.clientSideGame[turn];
   },
   sendSliderToTurn: function(turn) {
     //The "track" the sword slides along
@@ -377,206 +366,7 @@ var Game = Backbone.Model.extend({
     }
   }
 });
-;var Leaderboard = Backbone.Model.extend({
-  
-  // give model url attribute for server to handle
-  url: 'api/leaderboard/lifetime/kills',
-  updateLeaderboard: function(params) {
-    this.url = 'api/leaderboard/' + params.timeFrame + '/' + params.stat;
-  }
-
-});;var LeaderboardView = Backbone.View.extend({
-  tagName: 'div',
-  className: 'centered',
-  initialize: function() {
-    
-    //Current leaderboard settings
-    this.leaderboardParams = {
-      stat: 'damageDealt',
-      timeFrame: 'lifetime'
-    };
-
-    //Dropdown items for lifetime stats
-    this.statItems = {
-      'lifetime': [
-        ['damageDealt', 'Damage Dealt'],
-        ['deaths', 'Deaths'],
-        ['diamondsEarned', 'Diamonds Earned'],
-        ['gravesRobbed', 'Graves Robbed'],
-        ['healthGiven', 'Health Given'],
-        ['healthRecovered', 'Health Recovered'],
-        ['kills', 'Kills'],
-        ['losses', 'Losses'],
-        ['minesCaptured', 'Mines Captured'],
-        ['wins', 'Wins']
-      ],
-      'average': [
-        ['damageDealt', 'Damage Dealt'],
-        ['deaths', 'Deaths'],
-        ['diamondsEarned', 'Diamonds Earned'],
-        ['gravesRobbed', 'Graves Robbed'],
-        ['healthGiven', 'Health Given'],
-        ['healthRecovered', 'Health Recovered'],
-        ['kills', 'Kills'],
-        ['losses', 'Losses'],
-        ['minesCaptured', 'Mines Captured'],
-        ['wins', 'Wins']
-      ],
-      'recent': [
-        ['damageDealt', 'Damage Dealt'],
-        ['diamondsEarned', 'Diamonds Earned'],
-        ['gravesRobbed', 'Graves Robbed'],
-        ['healthGiven', 'Health Given'],
-        ['healthRecovered', 'Health Recovered'],
-        ['kills', 'Kills'],
-        ['minesCaptured', 'Mines Captured'],
-      ]
-    };
-
-    var timeFrames = [
-      ['lifetime', 'Overall'],
-      ['average', 'Average'],
-      ['recent', 'Most Recent Battle']
-    ];
-
-    var timeHtml = timeFrames.map(function(timeFrame) {
-      return '<option class="leaderboard" value="' + timeFrame[0] + '">' + timeFrame[1] + '</option>';
-      console.log(timeFrame);
-    });
-
-    var statsHtml = this.statItems[this.leaderboardParams.timeFrame].map(function(stat) {
-      return '<option value="' + stat[0] + '">' + stat[1] + '</option>';
-    });
-
-    var initialHtml =
-        '<select class="leaderboard-time-param" name="stats">' + timeHtml.join('') + '</select>' +
-        '<select class="leaderboard-stat-param" name="time">' + statsHtml.join('') + '</select>' +
-        '<table class="table table-striped table-bordered table-responsive leaderboard-table">' + 
-        '</table>';
-
-
-    this.$el.html(initialHtml);
-
-    //Tells the model to get data
-    //for the specified stat and type
-    this.model.updateLeaderboard(this.leaderboardParams);
-
-    // Update the leaderboard model, then render on completion
-    $.when(this.model.fetch()).then(function() {
-      this.render();
-    }.bind(this));
-  },
-
-  events: {
-    'change select.leaderboard-time-param': 'updateLeaderboardTime',
-    'change select.leaderboard-stat-param': 'updateLeaderboardStat'
-  },
-  updateLeaderboardTime: function(clickEvent) {
-    //Update dropdown for the time frame selected
-    if (this.leaderboardParams.timeFrame !== clickEvent.currentTarget.value) {
-
-      //Get the stat the user clicked on
-      this.leaderboardParams.timeFrame = clickEvent.currentTarget.value;
-
-      //Update the dropdown stats list for the new time frame
-      var statItemsForTimeFrame = this.statItems[this.leaderboardParams.timeFrame]
-      var statsHtml = statItemsForTimeFrame.map(function(stat) {
-        return '<option value="' + stat[0] + '">' + stat[1] + '</option>';
-      });
-      var $statSelect = this.$el.find('select.leaderboard-stat-param');
-      $statSelect.html(statsHtml);
-
-      //If last selected stat is in the new stat list, keep it
-      var inList = false;
-      for (var i=0; i<statItemsForTimeFrame.length; i++) {
-        if (statItemsForTimeFrame[i][0] === this.leaderboardParams.stat) {
-          $statSelect.val(this.leaderboardParams.stat);
-          inList = true;
-          break;
-        }
-      }
-      
-      //If last selected stat is not valid for this time frame,
-      //default to the first stat
-      if (!inList) {
-        this.leaderboardParams.stat = statItemsForTimeFrame[0][0];
-      }
-
-      //Update the leaderboard itself
-      this.updateLeaderboard();
-    }
-  },
-  updateLeaderboardStat: function(clickEvent) {
-
-    //Get the stat the user clicked on
-    this.leaderboardParams.stat = clickEvent.currentTarget.value;
-
-    //Update the leaderboard to show the new stat
-    this.updateLeaderboard();
-  },
-  updateLeaderboard: function() {
-    //Update the leaderboard model to grab the new leaderboard data
-    this.model.updateLeaderboard(this.leaderboardParams);
-
-    //Grab the new leaderboard data, then re-render
-    $.when(this.model.fetch()).then(function() {
-      this.render();
-    }.bind(this), function() {
-      console.log('Failed to retrieve leaderboard');
-      this.render(true);
-    }.bind(this));
-  },
-
-  render: function(failed) {
-
-    //Update Leaderboard
-    var $table = this.$el.find('table.leaderboard-table');
-    
-    if (failed) {
-
-      $table.html('<tr><th>Rank</th><th>Name</th><th>Failed To Load</th></tr>')
-
-    } else {
-      var headerItem = 'Failed To Load';
-
-      //Replace with object-based logic eventually
-      //Gets the nicely formatted label to display in the table header
-      var statItems = this.statItems[this.leaderboardParams.timeFrame];
-
-      for (var i=0; i<statItems.length; i++) {
-        var value = statItems[i][0];
-        if (value === this.leaderboardParams.stat) {
-          headerItem = statItems[i][1];
-          break;
-        }
-      }
-
-      var tableHtml =
-        '<tr class="lifetime-table-header leaderboard-headers">' +
-          '<th class="leaderboard-rank">Rank</th>' +
-          '<th class="leaderboard-name">Name</th>' +
-          '<th class="leaderboard-damage">' + headerItem + '</th>' +
-        '</tr>';
-
-      var topUsers = this.model.get('topUsers');
-      for (var i=0; i<topUsers.length; i++) {
-        var user = topUsers[i];
-        tableHtml += '<tr>';
-
-        //Add the rank of the user to table
-        tableHtml += '<td>' + (i + 1) + '</td>';
-        tableHtml += '<td>' + user.name + '</td>';
-        tableHtml += '<td>' + user.value + '</td>';
-
-
-        tableHtml += '</tr>';
-      }
-      tableHtml += '</table>';
-      $table.html(tableHtml);
-    }
-  }
-
-});;var NavbarView = Backbone.View.extend({
+;var NavbarView = Backbone.View.extend({
 
   initialize: function(){
     this.render();
@@ -602,14 +392,12 @@ var Game = Backbone.Model.extend({
   
   initialize: function(){
     this.viewing = {};
-    this.viewing = "general";
+    this.viewing = "rules";
     this.render();
   },
 
   events: {
-    'click .general': 'showGeneral',
-    'click .rules': 'showRules',
-    'click .improve': 'showImprove'
+    'click .rules': 'showRules'
   },
 
   showRules: function(event) {
@@ -618,30 +406,12 @@ var Game = Backbone.Model.extend({
     this.render();
     $('.rules').tab('show');
   },
-  
-   showGeneral: function(event) {
-    event.preventDefault();
-    this.viewing = "general";
-    this.render();
-    $('.general').tab('show');
-  },
-
-   showImprove: function(event) {
-    event.preventDefault();
-    this.viewing = "improve";
-    this.render();
-    $('.improve').tab('show');
-  },
 
   render: function(){
     var html;
     if(this.viewing === "rules") {
       html = new EJS({url: '/ejs_templates/rules'}).render(this.model);
-    } else if (this.viewing === "general") {
-      html = new EJS({url: '/ejs_templates/general'}).render(this.model);
-    }  else if (this.viewing === "improve") {
-      html = new EJS({url: '/ejs_templates/improve'}).render(this.model);
-    }
+    } 
     this.$el.html(html);
   }
 
@@ -1000,6 +770,8 @@ $('.navbar-collapse ul li a').click(function() {
 });;var app = {};
 
 app.game = new Game();
+var initialGame = require('./game_classes/Game.js');
+app.game.clientSideGame['0'] = new initialGame(12);
 app.gameView = new GameView({ model: app.game });
 $('.gamegrid-content').append(app.gameView.$el);
 
@@ -1013,6 +785,4 @@ $('.navbar').append(app.navbarView.$el);
 app.rulesView = new RulesView({ model: app.user });
 $('#rules').append(app.rulesView.$el);
 
-app.leaderboard = new Leaderboard();
-app.leaderboardView = new LeaderboardView({ model: app.leaderboard });
-$('#leaderboard div.container').append(app.leaderboardView.$el);
+

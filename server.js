@@ -12,8 +12,7 @@ var port = process.env.port || 8080;
 var productionMode = process.env.PRODUCTION_MODE || 'local';
 var secondsBetweenRefresh = process.env.SECONDS_BETWEEN_REFRESH || 120;
 var mongoConnectionUrl = process.env.CUSTOMCONNSTR_MONGO_URI || 'mongodb://localhost/javascriptBattle';
-console.log(productionMode)
-console.log(secondsBetweenRefresh)
+
 //Connection to database will refresh every 2 minutes (120 seconds)
 var jsBattleConnection = new JsBattleConnection(mongoConnectionUrl, secondsBetweenRefresh);
 
@@ -51,29 +50,6 @@ router.get('/gameDataForUser/:turn', function(req, res) {
       res.send(game);
     });
   }).catch(function(err) {
-    res.send(err);
-  });
-});
-
-//Returns the leaderboard data for the specified time period and stat
-router.get('/leaderboard/:timePeriod/:stat', function(req, res) {
-  var timePeriod = req.params.timePeriod;
-  var stat = req.params.stat;
-
-  jsBattleConnection.getConnection().then(function(db) {
-    var collection = db.collection('leaderboard');
-    var id = timePeriod + '|' + stat;
-    collection.findOne({
-      '_id': id
-    }, function(err, results) {
-      if (err) {
-        res.send(err);
-        return;
-      }
-      res.send(results);
-    });
-  }).catch(function(err) {
-    //If something goes wrong, respond with error
     res.send(err);
   });
 });

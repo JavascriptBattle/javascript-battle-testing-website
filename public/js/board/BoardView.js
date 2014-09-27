@@ -9,7 +9,8 @@ var BoardView = Backbone.View.extend({
     this.createBoardView();
   },
   createBoardView: function() {
-  	var boardLength = this.collection.lengthOfSide;
+    console.log(this.collection)
+    var boardLength = this.collection.lengthOfSide;
     for(var i = 0; i < boardLength; i++){
       var $tr = $('<div class="tile-row">');
     	for(var j = 0; j < boardLength; j++){
