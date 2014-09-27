@@ -21,7 +21,7 @@
     <div class="col-lg-8 col-lg-offset-2">
       <ul class="info-list">
         <ul class="rules-list">
-          <li>Copy/Paste your hero's code into the box below and click 'Upload.'</li>
+          <li>Upload your hero.js and helpers.js files below.</li>
           <li>Your hero's code will be run through a simulation game in your browser.*</li>
           <li>When the simulation is complete, you can watch the game below.</li>
           <li>After viewing your simulated battle, feel free to make any changes you need and repeat these steps until you are satisfied with you hero's performance.</li>
@@ -32,9 +32,15 @@
     </div>
   </div>
   <br>
-  <div class="row">
-    <div class="centered">
-      <input id="file-upload" type="file">
-    </div>
+  <br>
+  <div class="centered">
+    <input type="file" title="Upload Hero.js here">
   </div>
+  <br>
+  <div class="centered">
+    <input type="file" title="Upload Helper.js here">
+  </div>
+  <script>
+    $('input[type=file]').bootstrapFileInput()
+  </script>
 </div>
