@@ -3,6 +3,8 @@ var Game = Backbone.Model.extend({
 
   clientSideGame: {},
 
+  helpers: {},
+
   setupGame: function(game, boardSize) {
     var randomNumber = function(max) {
       return Math.floor(Math.random()*max);
@@ -35,13 +37,11 @@ var Game = Backbone.Model.extend({
 
   runGame: function() {
     var move = this.get('heroCode');
-    var helpers = this.get('helperCode');
     var start = move.indexOf('module.exports = move');
-    move = move.split('');
-    move.splice(start, 22);
-    move = move.join('');
-    var test = eval(move + 'move();');
-    console.log(test)
+    move = move.slice(0, move.length - 23);
+
+    var helpers = this.helpers;
+    console.log(eval(move + 'move({}, helpers)'));
   },
 
   initialize: function() {
