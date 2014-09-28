@@ -63,8 +63,7 @@ var Board = Backbone.Collection.extend({
     this.createBoardView();
   },
   createBoardView: function() {
-    console.log(this)
-  	var boardLength = this.collection.lengthOfSide;
+    var boardLength = this.collection.lengthOfSide;
     for(var i = 0; i < boardLength; i++){
       var $tr = $('<div class="tile-row">');
     	for(var j = 0; j < boardLength; j++){
@@ -82,43 +81,82 @@ var Game = Backbone.Model.extend({
 
   clientSideGame: {},
 
-  runGame: function() {
-    var result = $('#file-upload').val();
-    console.log(open(result));
+  helpers: {},
+
+  maxTurn: 200,
+
+  setupGame: function(game, boardSize) {
+    var randomNumber = function(max) {
+      return Math.floor(Math.random()*max);
+    };
+
+    for (var i=0; i<12; i++) {
+      while (!game.addHero(randomNumber(boardSize), randomNumber(boardSize), 'random', 0)) {
+        //Loops until each hero is successfully added
+      }
+    }
+
+    for (var i=0; i<12; i++) {
+      while (!game.addHero(randomNumber(boardSize), randomNumber(boardSize), 'random', 1)) {
+        //Loops until each hero is successfully added
+      }
+    }
+    for (var i=0; i<6; i++) {
+      game.addHealthWell(randomNumber(boardSize), randomNumber(boardSize));
+    }
+    for (var i=0; i<18; i++) {
+      game.addImpassable(randomNumber(boardSize), randomNumber(boardSize));
+    }
+    for (var i=0; i<12; i++) {
+      game.addDiamondMine(randomNumber(boardSize), randomNumber(boardSize));
+    }
+
+    game.maxTurn = this.maxTurn;
+  },
+
+  runGame: function(turn) {
+    if (move === undefined) {
+      console.log('hmmmm')
+    } else {
+      var move = this.get('heroCode');
+      var start = move.indexOf('module.exports = move');
+      move = move.slice(0, move.length - 23);
+      var helpers = this.helpers;
+      // eval(move + 'move({}, helpers)');
+    }
   },
 
   initialize: function() {
-    console.log(this)
     var userModel = new User();
     this.set('userModel', userModel);
   },
   
-  parse: function(response) {
-    this.set('turn', response.turn);
-    this.set('maxTurn', response.maxTurn);
-    this.set('moveMessages', response.moveMessage);
-    this.set('winningTeam', response.winningTeam);
-    this.set('attackMessages', response.attackMessage);
-    this.set('killMessages', response.killMessage);
-    this.set('teamDiamonds', response.totalTeamDiamonds);
+  gameSet: function(turnNumber) {
+    this.set('turn', this.clientSideGame[turnNumber].turn);
+    this.set('maxTurn', this.clientSideGame[turnNumber].maxTurn);
+    this.set('moveMessages', this.clientSideGame[turnNumber].moveMessage);
+    this.set('winningTeam', this.clientSideGame[turnNumber].winningTeam);
+    this.set('attackMessages', this.clientSideGame[turnNumber].attackMessage);
+    this.set('killMessages', this.clientSideGame[turnNumber].killMessage);
+    this.set('teamDiamonds', this.clientSideGame[turnNumber].totalTeamDiamonds);
     var teamYellow = new Team();
     var teamBlue = new Team();
+    var board = new Board();
 
-    board.lengthOfSide = response.board.lengthOfSide;
+    board.lengthOfSide = this.clientSideGame[turnNumber].board.lengthOfSide;
+    this.setupGame(this.clientSideGame[turnNumber], board.lengthOfSide);
     //add team yellow hero Models to team collection
-    _.each(response.teams[0], function(heroObject){
-      heroObject.gameTurn = response.turn;
+    _.each(this.clientSideGame[turnNumber].teams[0], function(heroObject, key, col){
+      heroObject.gameTurn = turnNumber;
       heroObject.battleId = heroObject.id;
-      delete heroObject.id;
 
       var hero = new Hero(heroObject);
       teamYellow.add(hero);
     });
     //add team blue hero Models to team collection
-    _.each(response.teams[1], function(heroObject){
-      heroObject.gameTurn = response.turn;
+    _.each(this.clientSideGame[turnNumber].teams[1], function(heroObject){
+      heroObject.gameTurn = turnNumber;
       heroObject.battleId = heroObject.id;
-      delete heroObject.id;
 
       var hero = new Hero(heroObject);
       teamBlue.add(hero);
@@ -126,7 +164,7 @@ var Game = Backbone.Model.extend({
 
     
 
-    _.each(_.flatten(response.board.tiles), function(tileObject, key, list) {
+    _.each(_.flatten(this.clientSideGame[turnNumber].board.tiles), function(tileObject, key, list) {
       //The id from our game model was overwriting 
       tileObject.battleId = tileObject.id;
       delete tileObject.id;
@@ -140,16 +178,15 @@ var Game = Backbone.Model.extend({
     this.set('teamBlue', teamBlue);
     this.set('board', board);
   },
+
   updateTurn: function(turn) {
-    return this.clientSideGame[turn];
+    this.runGame(turn);
+    this.set('turn', turn++);
   }
 });;var GameView = Backbone.View.extend({
   tagName: 'div',
   className: 'outer',
   initialize: function(){
-    var boardView = new BoardView({collection: this.model.get('board')});
-    this.updateTurn(0);
-    console.log(this);
     this.paused = true;
     this.playInProgress = false;
     this.sliderInitialized = false;
@@ -163,6 +200,7 @@ var Game = Backbone.Model.extend({
                       '</span>' +
                     '</div>');
     this.$el.append('<span class="turn"></span>');
+    this.render();
   },
   events: {
     'click .play-pause-game': 'togglePlayGame',
@@ -170,6 +208,8 @@ var Game = Backbone.Model.extend({
   },
   render: function(){
     this.checkWinner();
+    this.model.gameSet(0);
+    // this.initializeSlider();
     var $gameHtml = this.$el.find('.map');
     $gameHtml.html('');
     //Show game update messages
@@ -198,10 +238,7 @@ var Game = Backbone.Model.extend({
     $gameHtml.append(blueTeamView.$el);
     this.$el.find('.turn').text('Turn: ' + this.model.get('turn'));
   },
-  updateTurn: function(turn) {
-    turn += '';
-    this.model.clientSideGame[turn];
-  },
+
   sendSliderToTurn: function(turn) {
     //The "track" the sword slides along
     var $rangeBar = this.$el.find('.range-bar');
@@ -249,9 +286,10 @@ var Game = Backbone.Model.extend({
 
     //Initialize new slider and set it to update
     //the turn on slide
+    console.log('Before Powerange', currentTurn);
     var init = new Powerange(slider, {
       min: 0,
-      max: maxTurn,
+      max: this.model.get('maxTurn'),
       step: 1,
       callback: function() {
         //Pause the game
@@ -262,6 +300,7 @@ var Game = Backbone.Model.extend({
 
       }.bind(this)
     });
+    console.log('After Powerange', init)
 
     //Allows users to change the turn with arrow keys
     $(document).keydown(function(e) {
@@ -330,27 +369,22 @@ var Game = Backbone.Model.extend({
     //Store the current turn and the turn at which
     //the game will end
     var currTurn = this.model.get('turn');
+    console.log(currTurn)
     var maxTurn = this.model.get('maxTurn');
 
     //If the game is not yet over, go to next turn
-    if (currTurn < maxTurn && this.paused === false && this.playInProgress === false) {
+    if (currTurn < maxTurn && this.paused === false) {
       //Keeps track of whether we are waiting for the promise
       //to resolve (used to prevent issues with users doubleclicking)
       //the play button
-      this.playInProgress = true;
-      var updateTurnPromise = this.updateTurn(currTurn+1);
-      var gameView = this;
-      $.when(updateTurnPromise).then(function() {
-        //promise has resolved, no longer waiting
-        this.playInProgress = false;
+      this.updateTurn(++currTurn);
 
-        //Updates the slider location to track with the current turn
-        this.sendSliderToTurn(currTurn + 1);
+      //Updates the slider location to track with the current turn
+      // this.sendSliderToTurn(currTurn + 1);
 
-        //Runs this again (will run until no turns are left or
-        //until paused)
-        this.autoPlayGame();
-      }.bind(this));
+      //Runs this again (will run until no turns are left or
+      //until paused)
+      this.autoPlayGame();
     }  
   },
   checkWinner: function() {
@@ -362,8 +396,12 @@ var Game = Backbone.Model.extend({
       message.text('Blue Team Wins!');
 
     } else {
-      message.text('See Today\'s Battle')
+      message.text('Simulated Game')
     }
+  },
+
+  updateTurn: function(turn) {
+    this.model.updateTurn(turn);
   }
 });
 ;var NavbarView = Backbone.View.extend({
@@ -397,7 +435,9 @@ var Game = Backbone.Model.extend({
   },
 
   events: {
-    'click .rules': 'showRules'
+    'click .rules': 'showRules',
+    'change #hero': 'getHeroCode',
+    'change #helper': 'getHelperCode'
   },
 
   showRules: function(event) {
@@ -413,6 +453,17 @@ var Game = Backbone.Model.extend({
       html = new EJS({url: '/ejs_templates/rules'}).render(this.model);
     } 
     this.$el.html(html);
+  },
+
+  getHeroCode: function() {
+    var reader = new FileReader();
+    var heroCode = this.$el.find('#hero')[0].files[0];
+    var that = this;
+    reader.onload = function(e) {
+      that.model.set('heroCode', reader.result);
+    };
+    reader.readAsText(heroCode);
+
   }
 
 
@@ -651,28 +702,7 @@ $('.navbar-collapse ul li a').click(function() {
 
   // set id attribute so that we can do put requests
   // backbone looks for 'id' otherwise
-  idAttribute: '_id',
-
-  average: function() {
-    var gamesPlayed = this.get('lifetimeStats').wins + this.get('lifetimeStats').losses;
-    var that = this;
-
-    var numbersForDisplay = function(prop) {
-      return (Number(parseFloat(that.get('lifetimeStats')[prop] / gamesPlayed).toFixed(2)) || 0) + ' per game';
-    };
-
-    var aveStats = {
-      gamesPlayed: gamesPlayed,
-      kills: numbersForDisplay('kills'),
-      deaths: numbersForDisplay('deaths'),
-      damageDealt: numbersForDisplay('damageDealt'),
-      minesCaptured: numbersForDisplay('minesCaptured'),
-      diamondsEarned: numbersForDisplay('diamondsEarned'),
-      healthRecovered: numbersForDisplay('healthRecovered'),
-      gravesRobbed: numbersForDisplay('gravesRobbed')
-    }; 
-    return aveStats;
-  }
+  idAttribute: '_id'
 
 });;var UserView = Backbone.View.extend({
   
@@ -770,8 +800,12 @@ $('.navbar-collapse ul li a').click(function() {
 });;var app = {};
 
 app.game = new Game();
+
 var initialGame = require('./game_classes/Game.js');
-app.game.clientSideGame['0'] = new initialGame(12);
+app.game.clientSideGame[0] = new initialGame(12);
+
+app.game.helpers = require('./helpers.js');
+
 app.gameView = new GameView({ model: app.game });
 $('.gamegrid-content').append(app.gameView.$el);
 
@@ -782,7 +816,8 @@ $('#join').append(app.userView.$el);
 app.navbarView = new NavbarView({ model: app.user });
 $('.navbar').append(app.navbarView.$el);
 
-app.rulesView = new RulesView({ model: app.user });
+app.rulesView = new RulesView({ model: app.game });
 $('#rules').append(app.rulesView.$el);
+
 
 

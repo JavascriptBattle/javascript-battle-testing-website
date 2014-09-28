@@ -7,7 +7,9 @@ var RulesView = Backbone.View.extend({
   },
 
   events: {
-    'click .rules': 'showRules'
+    'click .rules': 'showRules',
+    'change #hero': 'getHeroCode',
+    'change #helper': 'getHelperCode'
   },
 
   showRules: function(event) {
@@ -23,6 +25,17 @@ var RulesView = Backbone.View.extend({
       html = new EJS({url: '/ejs_templates/rules'}).render(this.model);
     } 
     this.$el.html(html);
+  },
+
+  getHeroCode: function() {
+    var reader = new FileReader();
+    var heroCode = this.$el.find('#hero')[0].files[0];
+    var that = this;
+    reader.onload = function(e) {
+      that.model.set('heroCode', reader.result);
+    };
+    reader.readAsText(heroCode);
+
   }
 
 
