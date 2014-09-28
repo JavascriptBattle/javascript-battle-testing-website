@@ -2,7 +2,6 @@ var GameView = Backbone.View.extend({
   tagName: 'div',
   className: 'outer',
   initialize: function(){
-    this.updateTurn(0);
     this.paused = true;
     this.playInProgress = false;
     this.sliderInitialized = false;
@@ -19,12 +18,13 @@ var GameView = Backbone.View.extend({
     this.render();
   },
   events: {
-    'click .play-pause-game': 'testGame',
+    'click .play-pause-game': 'togglePlayGame',
     'click .restart-game': 'restartGame'
   },
   render: function(){
     this.checkWinner();
     this.model.gameSet(0);
+    // this.initializeSlider();
     var $gameHtml = this.$el.find('.map');
     $gameHtml.html('');
     //Show game update messages
@@ -54,13 +54,6 @@ var GameView = Backbone.View.extend({
     this.$el.find('.turn').text('Turn: ' + this.model.get('turn'));
   },
 
-  testGame: function() {
-    this.model.runGame();
-  },
-
-  updateTurn: function(turn) {
-    this.model.clientSideGame[turn];
-  },
   sendSliderToTurn: function(turn) {
     //The "track" the sword slides along
     var $rangeBar = this.$el.find('.range-bar');
@@ -108,9 +101,10 @@ var GameView = Backbone.View.extend({
 
     //Initialize new slider and set it to update
     //the turn on slide
+    console.log('Before Powerange', currentTurn);
     var init = new Powerange(slider, {
       min: 0,
-      max: maxTurn,
+      max: this.model.get('maxTurn'),
       step: 1,
       callback: function() {
         //Pause the game
@@ -121,6 +115,7 @@ var GameView = Backbone.View.extend({
 
       }.bind(this)
     });
+    console.log('After Powerange', init)
 
     //Allows users to change the turn with arrow keys
     $(document).keydown(function(e) {
@@ -189,27 +184,27 @@ var GameView = Backbone.View.extend({
     //Store the current turn and the turn at which
     //the game will end
     var currTurn = this.model.get('turn');
+
     var maxTurn = this.model.get('maxTurn');
 
     //If the game is not yet over, go to next turn
-    if (currTurn < maxTurn && this.paused === false && this.playInProgress === false) {
+    if (currTurn < maxTurn && this.paused === false) {
       //Keeps track of whether we are waiting for the promise
       //to resolve (used to prevent issues with users doubleclicking)
       //the play button
-      this.playInProgress = true;
-      var updateTurnPromise = this.updateTurn(currTurn+1);
-      var gameView = this;
-      $.when(updateTurnPromise).then(function() {
-        //promise has resolved, no longer waiting
-        this.playInProgress = false;
-
-        //Updates the slider location to track with the current turn
-        this.sendSliderToTurn(currTurn + 1);
-
-        //Runs this again (will run until no turns are left or
-        //until paused)
+      if (this.updateTurn(++currTurn) === 'Stop') {
+        alert('Please upload your Hero.js file first.');
+        this.togglePlayGame();
+      } else {
+        this.updateTurn(++currTurn);
         this.autoPlayGame();
-      }.bind(this));
+      } 
+
+      //Updates the slider location to track with the current turn
+      // this.sendSliderToTurn(currTurn + 1);
+
+      //Runs this again (will run until no turns are left or
+      //until paused)
     }  
   },
   checkWinner: function() {
@@ -221,7 +216,15 @@ var GameView = Backbone.View.extend({
       message.text('Blue Team Wins!');
 
     } else {
-      message.text('See Today\'s Battle')
+      message.text('Simulated Game')
+    }
+  },
+
+  updateTurn: function(turn) {
+    if (this.model.updateTurn(turn) === 'Stop') {
+      return 'Stop'
+    } else {
+      this.model.updateTurn(turn);
     }
   }
 });

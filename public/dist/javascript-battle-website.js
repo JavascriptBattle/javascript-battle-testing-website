@@ -81,6 +81,10 @@ var Game = Backbone.Model.extend({
 
   clientSideGame: {},
 
+  helpers: {},
+
+  maxTurn: 200,
+
   setupGame: function(game, boardSize) {
     var randomNumber = function(max) {
       return Math.floor(Math.random()*max);
@@ -107,14 +111,19 @@ var Game = Backbone.Model.extend({
       game.addDiamondMine(randomNumber(boardSize), randomNumber(boardSize));
     }
 
-    var maxTurn = 2000;
-    game.maxTurn = maxTurn;
+    game.maxTurn = this.maxTurn;
   },
 
-  runGame: function() {
-    var move = this.get('heroCode');
-    var helpers = this.get('helperCode');
-    console.log(move)
+  runGame: function(turn) {
+    if (move === undefined) {
+      console.log('hmmmm')
+    } else {
+      var move = this.get('heroCode');
+      var start = move.indexOf('module.exports = move');
+      move = move.slice(0, move.length - 23);
+      var helpers = this.helpers;
+      // eval(move + 'move({}, helpers)');
+    }
   },
 
   initialize: function() {
@@ -140,7 +149,6 @@ var Game = Backbone.Model.extend({
     _.each(this.clientSideGame[turnNumber].teams[0], function(heroObject, key, col){
       heroObject.gameTurn = turnNumber;
       heroObject.battleId = heroObject.id;
-      delete heroObject.id;
 
       var hero = new Hero(heroObject);
       teamYellow.add(hero);
@@ -149,7 +157,6 @@ var Game = Backbone.Model.extend({
     _.each(this.clientSideGame[turnNumber].teams[1], function(heroObject){
       heroObject.gameTurn = turnNumber;
       heroObject.battleId = heroObject.id;
-      delete heroObject.id;
 
       var hero = new Hero(heroObject);
       teamBlue.add(hero);
@@ -170,12 +177,16 @@ var Game = Backbone.Model.extend({
     this.set('teamYellow', teamYellow);
     this.set('teamBlue', teamBlue);
     this.set('board', board);
+  },
+
+  updateTurn: function(turn) {
+    this.runGame(turn);
+    this.set('turn', turn++);
   }
 });;var GameView = Backbone.View.extend({
   tagName: 'div',
   className: 'outer',
   initialize: function(){
-    this.updateTurn(0);
     this.paused = true;
     this.playInProgress = false;
     this.sliderInitialized = false;
@@ -192,12 +203,13 @@ var Game = Backbone.Model.extend({
     this.render();
   },
   events: {
-    'click .play-pause-game': 'testGame',
+    'click .play-pause-game': 'togglePlayGame',
     'click .restart-game': 'restartGame'
   },
   render: function(){
     this.checkWinner();
     this.model.gameSet(0);
+    // this.initializeSlider();
     var $gameHtml = this.$el.find('.map');
     $gameHtml.html('');
     //Show game update messages
@@ -227,13 +239,6 @@ var Game = Backbone.Model.extend({
     this.$el.find('.turn').text('Turn: ' + this.model.get('turn'));
   },
 
-  testGame: function() {
-    this.model.runGame();
-  },
-
-  updateTurn: function(turn) {
-    this.model.clientSideGame[turn];
-  },
   sendSliderToTurn: function(turn) {
     //The "track" the sword slides along
     var $rangeBar = this.$el.find('.range-bar');
@@ -281,9 +286,10 @@ var Game = Backbone.Model.extend({
 
     //Initialize new slider and set it to update
     //the turn on slide
+    console.log('Before Powerange', currentTurn);
     var init = new Powerange(slider, {
       min: 0,
-      max: maxTurn,
+      max: this.model.get('maxTurn'),
       step: 1,
       callback: function() {
         //Pause the game
@@ -294,6 +300,7 @@ var Game = Backbone.Model.extend({
 
       }.bind(this)
     });
+    console.log('After Powerange', init)
 
     //Allows users to change the turn with arrow keys
     $(document).keydown(function(e) {
@@ -362,27 +369,22 @@ var Game = Backbone.Model.extend({
     //Store the current turn and the turn at which
     //the game will end
     var currTurn = this.model.get('turn');
+    console.log(currTurn)
     var maxTurn = this.model.get('maxTurn');
 
     //If the game is not yet over, go to next turn
-    if (currTurn < maxTurn && this.paused === false && this.playInProgress === false) {
+    if (currTurn < maxTurn && this.paused === false) {
       //Keeps track of whether we are waiting for the promise
       //to resolve (used to prevent issues with users doubleclicking)
       //the play button
-      this.playInProgress = true;
-      var updateTurnPromise = this.updateTurn(currTurn+1);
-      var gameView = this;
-      $.when(updateTurnPromise).then(function() {
-        //promise has resolved, no longer waiting
-        this.playInProgress = false;
+      this.updateTurn(++currTurn);
 
-        //Updates the slider location to track with the current turn
-        this.sendSliderToTurn(currTurn + 1);
+      //Updates the slider location to track with the current turn
+      // this.sendSliderToTurn(currTurn + 1);
 
-        //Runs this again (will run until no turns are left or
-        //until paused)
-        this.autoPlayGame();
-      }.bind(this));
+      //Runs this again (will run until no turns are left or
+      //until paused)
+      this.autoPlayGame();
     }  
   },
   checkWinner: function() {
@@ -394,8 +396,12 @@ var Game = Backbone.Model.extend({
       message.text('Blue Team Wins!');
 
     } else {
-      message.text('See Today\'s Battle')
+      message.text('Simulated Game')
     }
+  },
+
+  updateTurn: function(turn) {
+    this.model.updateTurn(turn);
   }
 });
 ;var NavbarView = Backbone.View.extend({
@@ -451,23 +457,13 @@ var Game = Backbone.Model.extend({
 
   getHeroCode: function() {
     var reader = new FileReader();
-    var file = this.$el.find('#hero')[0].files[0];
+    var heroCode = this.$el.find('#hero')[0].files[0];
     var that = this;
     reader.onload = function(e) {
       that.model.set('heroCode', reader.result);
     };
-    reader.readAsText(file);
+    reader.readAsText(heroCode);
 
-  },
-
-  getHelperCode: function() {
-    var reader = new FileReader();
-    var file = this.$el.find('#helper')[0].files[0];
-    var that = this;
-    reader.onload = function(e) {
-      that.model.set('helperCode', reader.result);
-    };
-    reader.readAsText(file);
   }
 
 
@@ -804,8 +800,11 @@ $('.navbar-collapse ul li a').click(function() {
 });;var app = {};
 
 app.game = new Game();
+
 var initialGame = require('./game_classes/Game.js');
 app.game.clientSideGame[0] = new initialGame(12);
+
+app.game.helpers = require('./helpers.js');
 
 app.gameView = new GameView({ model: app.game });
 $('.gamegrid-content').append(app.gameView.$el);
@@ -819,5 +818,6 @@ $('.navbar').append(app.navbarView.$el);
 
 app.rulesView = new RulesView({ model: app.game });
 $('#rules').append(app.rulesView.$el);
+
 
 

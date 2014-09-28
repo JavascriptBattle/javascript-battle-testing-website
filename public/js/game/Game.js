@@ -31,17 +31,20 @@ var Game = Backbone.Model.extend({
       game.addDiamondMine(randomNumber(boardSize), randomNumber(boardSize));
     }
 
-    var maxTurn = 2000;
-    game.maxTurn = maxTurn;
+    game.maxTurn = this.maxTurn;
   },
 
-  runGame: function() {
-    var move = this.get('heroCode');
-    var start = move.indexOf('module.exports = move');
-    move = move.slice(0, move.length - 23);
-
-    var helpers = this.helpers;
-    console.log(eval(move + 'move({}, helpers)'));
+  runGame: function(turn) {
+    if (move === undefined) {
+      // console.log('hmmmm')
+      return 'Stop'
+    } else {
+      var move = this.get('heroCode');
+      var start = move.indexOf('module.exports = move');
+      move = move.slice(0, move.length - 23);
+      var helpers = this.helpers;
+      // eval(move + 'move({}, helpers)');
+    }
   },
 
   initialize: function() {
@@ -67,7 +70,6 @@ var Game = Backbone.Model.extend({
     _.each(this.clientSideGame[turnNumber].teams[0], function(heroObject, key, col){
       heroObject.gameTurn = turnNumber;
       heroObject.battleId = heroObject.id;
-      delete heroObject.id;
 
       var hero = new Hero(heroObject);
       teamYellow.add(hero);
@@ -76,7 +78,6 @@ var Game = Backbone.Model.extend({
     _.each(this.clientSideGame[turnNumber].teams[1], function(heroObject){
       heroObject.gameTurn = turnNumber;
       heroObject.battleId = heroObject.id;
-      delete heroObject.id;
 
       var hero = new Hero(heroObject);
       teamBlue.add(hero);
@@ -97,5 +98,14 @@ var Game = Backbone.Model.extend({
     this.set('teamYellow', teamYellow);
     this.set('teamBlue', teamBlue);
     this.set('board', board);
+  },
+
+  updateTurn: function(turn) {
+    if (this.runGame(turn) === 'Stop') {
+      return 'Stop';
+    } else {
+      this.runGame(turn);
+      this.set('turn', turn++);
+    }
   }
 });

@@ -38,7 +38,7 @@ var Game = function(n) {
   this.killMessage = '';
 
   //Default is 300, can be overwritten
-  this.maxTurn = 300;
+  this.maxTurn = 1300;
   this.turn = 0;
 
   //Prevents adding of new objects
