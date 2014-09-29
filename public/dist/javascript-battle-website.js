@@ -83,8 +83,6 @@ var Game = Backbone.Model.extend({
 
   helpers: {},
 
-  maxTurn: 200,
-
   setupGame: function(game, boardSize) {
     var randomNumber = function(max) {
       return Math.floor(Math.random()*max);
@@ -115,14 +113,17 @@ var Game = Backbone.Model.extend({
   },
 
   runGame: function(turn) {
-    if (move === undefined) {
-      console.log('hmmmm')
+    if (this.get('heroCode') === undefined) {
+      return 'Stop'
     } else {
       var move = this.get('heroCode');
       var start = move.indexOf('module.exports = move');
       move = move.slice(0, move.length - 23);
       var helpers = this.helpers;
-      // eval(move + 'move({}, helpers)');
+      var gameData = this.clientSideGame[--turn];
+      var handleHeroTurn = gameData.handleHeroTurn;
+      handleHeroTurn.call(gameData, eval(move + 'move(gameData, helpers)'));
+      // this.clientSideGame[turn] = this.clientSideGame[--turn];
     }
   },
 
@@ -180,8 +181,12 @@ var Game = Backbone.Model.extend({
   },
 
   updateTurn: function(turn) {
-    this.runGame(turn);
-    this.set('turn', turn++);
+    if (this.runGame(turn) === 'Stop') {
+      return 'Stop';
+    } else {
+      this.runGame(turn);
+      this.set('turn', turn++);
+    }
   }
 });;var GameView = Backbone.View.extend({
   tagName: 'div',
@@ -369,7 +374,7 @@ var Game = Backbone.Model.extend({
     //Store the current turn and the turn at which
     //the game will end
     var currTurn = this.model.get('turn');
-    console.log(currTurn)
+
     var maxTurn = this.model.get('maxTurn');
 
     //If the game is not yet over, go to next turn
@@ -377,14 +382,19 @@ var Game = Backbone.Model.extend({
       //Keeps track of whether we are waiting for the promise
       //to resolve (used to prevent issues with users doubleclicking)
       //the play button
-      this.updateTurn(++currTurn);
+      if (this.updateTurn(++currTurn) === 'Stop') {
+        alert('Please upload your Hero.js file first.');
+        this.togglePlayGame();
+      } else {
+        this.updateTurn(++currTurn);
+        this.autoPlayGame();
+      } 
 
       //Updates the slider location to track with the current turn
       // this.sendSliderToTurn(currTurn + 1);
 
       //Runs this again (will run until no turns are left or
       //until paused)
-      this.autoPlayGame();
     }  
   },
   checkWinner: function() {
@@ -401,7 +411,11 @@ var Game = Backbone.Model.extend({
   },
 
   updateTurn: function(turn) {
-    this.model.updateTurn(turn);
+    if (this.model.updateTurn(turn) === 'Stop') {
+      return 'Stop'
+    } else {
+      this.model.updateTurn(turn);
+    }
   }
 });
 ;var NavbarView = Backbone.View.extend({
@@ -429,15 +443,15 @@ var Game = Backbone.Model.extend({
 });;var RulesView = Backbone.View.extend({
   
   initialize: function(){
-    this.viewing = {};
     this.viewing = "rules";
+    this.waiting = false;
     this.render();
   },
 
   events: {
     'click .rules': 'showRules',
-    'change #hero': 'getHeroCode',
-    'change #helper': 'getHelperCode'
+    'click .simulate': 'showWaiting',
+    'change #hero': 'getHeroCode'
   },
 
   showRules: function(event) {
@@ -447,12 +461,24 @@ var Game = Backbone.Model.extend({
     $('.rules').tab('show');
   },
 
+  showWaiting: function() {
+    this.waiting = true;
+  },
+
   render: function(){
     var html;
+    var simulationHtml = '<button class="btn btn-success btn-lg">Simulate Game</button>';
+    var waitingHtml = '<button class="btn btn-danger btn-lg">Waiting for Simulation to Finish</button>';
     if(this.viewing === "rules") {
       html = new EJS({url: '/ejs_templates/rules'}).render(this.model);
-    } 
+    }
     this.$el.html(html);
+    if (!this.waiting) {
+      this.$el.find('.simulate').html(simulationHtml);
+    }
+    if (this.waiting) {
+      this.$el.find('.simulate').html(waitingHtml);
+    }
   },
 
   getHeroCode: function() {

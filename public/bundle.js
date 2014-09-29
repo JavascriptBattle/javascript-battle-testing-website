@@ -291,6 +291,7 @@ Game.prototype.handleHeroTurn = function(direction) {
   this.hasStarted = true;
 
   var hero = this.activeHero;
+  console.log('This: ', this)
 
   // Only resolves the turn if the hero is not dead
   if (!hero.dead) {

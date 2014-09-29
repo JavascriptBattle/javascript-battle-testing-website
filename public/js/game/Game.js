@@ -34,16 +34,18 @@ var Game = Backbone.Model.extend({
     game.maxTurn = this.maxTurn;
   },
 
-  runGame: function(turn) {
-    if (move === undefined) {
-      // console.log('hmmmm')
+  runGame: function() {
+    if (this.get('heroCode') === undefined) {
       return 'Stop'
     } else {
       var move = this.get('heroCode');
       var start = move.indexOf('module.exports = move');
       move = move.slice(0, move.length - 23);
       var helpers = this.helpers;
-      // eval(move + 'move({}, helpers)');
+      var gameData = this.clientSideGame[--turn];
+      var handleHeroTurn = gameData.handleHeroTurn;
+      handleHeroTurn.call(gameData, eval(move + 'move(gameData, helpers)'));
+      // this.clientSideGame[turn] = this.clientSideGame[--turn];
     }
   },
 
