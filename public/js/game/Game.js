@@ -10,13 +10,13 @@ var Game = Backbone.Model.extend({
       return Math.floor(Math.random()*max);
     };
 
-    for (var i=0; i<12; i++) {
+    for (var i=0; i<10; i++) {
       while (!game.addHero(randomNumber(boardSize), randomNumber(boardSize), 'random', 0)) {
         //Loops until each hero is successfully added
       }
     }
 
-    for (var i=0; i<12; i++) {
+    for (var i=0; i<10; i++) {
       while (!game.addHero(randomNumber(boardSize), randomNumber(boardSize), 'random', 1)) {
         //Loops until each hero is successfully added
       }
@@ -31,21 +31,34 @@ var Game = Backbone.Model.extend({
       game.addDiamondMine(randomNumber(boardSize), randomNumber(boardSize));
     }
 
-    game.maxTurn = this.maxTurn;
   },
 
   runGame: function() {
     if (this.get('heroCode') === undefined) {
-      return 'Stop'
+      alert('Please upload your Hero.js file first.');
     } else {
+      this.waiting = true;
       var move = this.get('heroCode');
       var start = move.indexOf('module.exports = move');
       move = move.slice(0, move.length - 23);
       var helpers = this.helpers;
-      var gameData = this.clientSideGame[--turn];
+      var gameData = this.clientSideGame[0];
+      this.gameSet(0);
+      this.setupGame(gameData, gameData.board.lengthOfSide);
       var handleHeroTurn = gameData.handleHeroTurn;
-      handleHeroTurn.call(gameData, eval(move + 'move(gameData, helpers)'));
-      // this.clientSideGame[turn] = this.clientSideGame[--turn];
+      while (gameData.turn < gameData.maxTurn) {
+        if (gameData.turn === 0 || gameData.turn % 19 === 0) {
+          var usersFunction = new Function(move);
+          var usersMove = usersFunction(gameData, helpers);
+          handleHeroTurn.call(gameData, usersMove);
+          this.clientSideGame[gameData.turn] = gameData;
+        } else {
+          var choices = ['North', 'South', 'East', 'West'];
+          handleHeroTurn.call(gameData, choices[Math.floor(Math.random()*4)]); 
+          this.clientSideGame[gameData.turn] = gameData;
+        }
+      }
+      this.trigger('finished');
     }
   },
 
@@ -103,11 +116,6 @@ var Game = Backbone.Model.extend({
   },
 
   updateTurn: function(turn) {
-    if (this.runGame(turn) === 'Stop') {
-      return 'Stop';
-    } else {
-      this.runGame(turn);
-      this.set('turn', turn++);
-    }
+    return this.clientSideGame[turn];
   }
 });

@@ -8,7 +8,7 @@ var RulesView = Backbone.View.extend({
 
   events: {
     'click .rules': 'showRules',
-    'click .simulate': 'showWaiting',
+    'click .simulate': 'simulate',
     'change #hero': 'getHeroCode'
   },
 
@@ -19,14 +19,8 @@ var RulesView = Backbone.View.extend({
     $('.rules').tab('show');
   },
 
-  showWaiting: function() {
-    if (this.model.runGame() === 'Stop') {
-      alert('Please upload your Hero.js file first.');
-    } else {
-      this.model.runGame();
-      this.waiting = true;
-      this.render();
-    }
+  simulate: function() {
+    this.model.runGame();
   },
 
   render: function(){
@@ -37,10 +31,10 @@ var RulesView = Backbone.View.extend({
       html = new EJS({url: '/ejs_templates/rules'}).render(this.model);
     }
     this.$el.html(html);
-    if (!this.waiting) {
+    if (!this.model.waiting) {
       this.$el.find('.simulate').html(simulationHtml);
     }
-    if (this.waiting) {
+    if (this.model.waiting) {
       this.$el.find('.simulate').html(waitingHtml);
     }
   },
