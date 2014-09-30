@@ -3,6 +3,10 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
 
+    browserify: {
+      'public/app.js': ['public/bundle']
+    },
+
     mochaTest: {
       test: {
         options: {
@@ -78,7 +82,8 @@ module.exports = function(grunt) {
         'concat',
         'uglify',
         'cssmin',
-        'clean'
+        'clean',
+        'browserify'
       ] 
     }
   });
@@ -88,6 +93,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.loadNpmTasks('grunt-browserify');
   // grunt.loadNpmTasks('grunt-blanket');
   grunt.loadNpmTasks('grunt-mocha-test');
   grunt.loadNpmTasks('grunt-contrib-watch');

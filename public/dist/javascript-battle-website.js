@@ -443,21 +443,12 @@ var Game = Backbone.Model.extend({
 
   initialize: function(){
     this.render();
-    $.when(this.model.fetch()).then(function() {
-      this.render();
-    }.bind(this));
   },
 
   render: function(){
     var html;
-    var githubHandle = this.model.get('githubHandle');
 
-    // if logged in
-    if(githubHandle) {
-      html = new EJS({url: '../ejs_templates/navbar'}).render(this.model);
-    } else {
-      html = new EJS({url: '../ejs_templates/navbarNotLoggedIn'}).render(this.model);
-    }
+    html = new EJS({url: '../ejs_templates/navbarNotLoggedIn'}).render(this.model);
     
     this.$el.html(html);
   }
@@ -750,10 +741,6 @@ app.game.helpers = require('./helpers.js');
 
 app.gameView = new GameView({ model: app.game });
 $('.gamegrid-content').append(app.gameView.$el);
-
-app.user = new User();
-app.userView = new UserView({ model: app.user });
-$('#join').append(app.userView.$el);
 
 app.navbarView = new NavbarView({ model: app.user });
 $('.navbar').append(app.navbarView.$el);
