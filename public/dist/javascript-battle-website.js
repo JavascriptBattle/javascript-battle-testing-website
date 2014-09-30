@@ -83,20 +83,20 @@ var Game = Backbone.Model.extend({
 
   helpers: {},
 
-  maxTurn: 200,
+  finished: false,
 
   setupGame: function(game, boardSize) {
     var randomNumber = function(max) {
       return Math.floor(Math.random()*max);
     };
 
-    for (var i=0; i<12; i++) {
+    for (var i=0; i<10; i++) {
       while (!game.addHero(randomNumber(boardSize), randomNumber(boardSize), 'random', 0)) {
         //Loops until each hero is successfully added
       }
     }
 
-    for (var i=0; i<12; i++) {
+    for (var i=0; i<10; i++) {
       while (!game.addHero(randomNumber(boardSize), randomNumber(boardSize), 'random', 1)) {
         //Loops until each hero is successfully added
       }
@@ -111,18 +111,32 @@ var Game = Backbone.Model.extend({
       game.addDiamondMine(randomNumber(boardSize), randomNumber(boardSize));
     }
 
-    game.maxTurn = this.maxTurn;
   },
 
-  runGame: function(turn) {
-    if (move === undefined) {
-      console.log('hmmmm')
+  runGame: function() {
+    if (this.get('heroCode') === undefined) {
+      return 'Stop'
     } else {
       var move = this.get('heroCode');
       var start = move.indexOf('module.exports = move');
       move = move.slice(0, move.length - 23);
       var helpers = this.helpers;
-      // eval(move + 'move({}, helpers)');
+      var gameData = this.clientSideGame[0];
+      this.setupGame(gameData, gameData.board.lengthOfSide);
+      var handleHeroTurn = gameData.handleHeroTurn;
+      while (gameData.turn < gameData.maxTurn) {
+        if (gameData.turn === 0 || gameData.turn % 19 === 0) {
+          var usersFunction = new Function(move);
+          var usersMove = usersFunction(gameData, helpers);
+          handleHeroTurn.call(gameData, usersMove);
+          this.clientSideGame[gameData.turn] = gameData;
+        } else {
+          var choices = ['North', 'South', 'East', 'West'];
+          handleHeroTurn.call(gameData, choices[Math.floor(Math.random()*4)]); 
+          this.clientSideGame[gameData.turn] = gameData;
+        } 
+      }
+      this.finished = true;
     }
   },
 
@@ -180,8 +194,12 @@ var Game = Backbone.Model.extend({
   },
 
   updateTurn: function(turn) {
-    this.runGame(turn);
-    this.set('turn', turn++);
+    if (this.runGame(turn) === 'Stop') {
+      return 'Stop';
+    } else {
+      this.runGame(turn);
+      this.set('turn', turn++);
+    }
   }
 });;var GameView = Backbone.View.extend({
   tagName: 'div',
@@ -200,7 +218,9 @@ var Game = Backbone.Model.extend({
                       '</span>' +
                     '</div>');
     this.$el.append('<span class="turn"></span>');
-    this.render();
+    if (this.model.finished) {
+      this.render();
+    }
   },
   events: {
     'click .play-pause-game': 'togglePlayGame',
@@ -208,7 +228,6 @@ var Game = Backbone.Model.extend({
   },
   render: function(){
     this.checkWinner();
-    this.model.gameSet(0);
     // this.initializeSlider();
     var $gameHtml = this.$el.find('.map');
     $gameHtml.html('');
@@ -369,7 +388,7 @@ var Game = Backbone.Model.extend({
     //Store the current turn and the turn at which
     //the game will end
     var currTurn = this.model.get('turn');
-    console.log(currTurn)
+
     var maxTurn = this.model.get('maxTurn');
 
     //If the game is not yet over, go to next turn
@@ -377,14 +396,19 @@ var Game = Backbone.Model.extend({
       //Keeps track of whether we are waiting for the promise
       //to resolve (used to prevent issues with users doubleclicking)
       //the play button
-      this.updateTurn(++currTurn);
+      if (this.updateTurn(++currTurn) === 'Stop') {
+        alert('Please upload your Hero.js file first.');
+        this.togglePlayGame();
+      } else {
+        this.updateTurn(++currTurn);
+        this.autoPlayGame();
+      } 
 
       //Updates the slider location to track with the current turn
       // this.sendSliderToTurn(currTurn + 1);
 
       //Runs this again (will run until no turns are left or
       //until paused)
-      this.autoPlayGame();
     }  
   },
   checkWinner: function() {
@@ -401,10 +425,58 @@ var Game = Backbone.Model.extend({
   },
 
   updateTurn: function(turn) {
-    this.model.updateTurn(turn);
+    if (this.model.updateTurn(turn) === 'Stop') {
+      return 'Stop'
+    } else {
+      this.model.updateTurn(turn);
+    }
   }
 });
-;var NavbarView = Backbone.View.extend({
+;this.set('turn', this.clientSideGame[turnNumber].turn);
+    this.set('maxTurn', this.clientSideGame[turnNumber].maxTurn);
+    this.set('moveMessages', this.clientSideGame[turnNumber].moveMessage);
+    this.set('winningTeam', this.clientSideGame[turnNumber].winningTeam);
+    this.set('attackMessages', this.clientSideGame[turnNumber].attackMessage);
+    this.set('killMessages', this.clientSideGame[turnNumber].killMessage);
+    this.set('teamDiamonds', this.clientSideGame[turnNumber].totalTeamDiamonds);
+    var teamYellow = new Team();
+    var teamBlue = new Team();
+    var board = new Board();
+
+    board.lengthOfSide = this.clientSideGame[turnNumber].board.lengthOfSide;
+    this.setupGame(this.clientSideGame[turnNumber], board.lengthOfSide);
+    //add team yellow hero Models to team collection
+    _.each(this.clientSideGame[turnNumber].teams[0], function(heroObject, key, col){
+      heroObject.gameTurn = turnNumber;
+      heroObject.battleId = heroObject.id;
+
+      var hero = new Hero(heroObject);
+      teamYellow.add(hero);
+    });
+    //add team blue hero Models to team collection
+    _.each(this.clientSideGame[turnNumber].teams[1], function(heroObject){
+      heroObject.gameTurn = turnNumber;
+      heroObject.battleId = heroObject.id;
+
+      var hero = new Hero(heroObject);
+      teamBlue.add(hero);
+    });
+
+    
+
+    _.each(_.flatten(this.clientSideGame[turnNumber].board.tiles), function(tileObject, key, list) {
+      //The id from our game model was overwriting 
+      tileObject.battleId = tileObject.id;
+      delete tileObject.id;
+      tileObject.gameTurn = this.get('turn');
+      var tile = new BoardTile(tileObject);
+      board.add(tile);
+
+    }.bind(this));
+
+    this.set('teamYellow', teamYellow);
+    this.set('teamBlue', teamBlue);
+    this.set('board', board);;var NavbarView = Backbone.View.extend({
 
   initialize: function(){
     this.render();
@@ -429,15 +501,15 @@ var Game = Backbone.Model.extend({
 });;var RulesView = Backbone.View.extend({
   
   initialize: function(){
-    this.viewing = {};
     this.viewing = "rules";
+    this.waiting = false;
     this.render();
   },
 
   events: {
     'click .rules': 'showRules',
-    'change #hero': 'getHeroCode',
-    'change #helper': 'getHelperCode'
+    'click .simulate': 'showWaiting',
+    'change #hero': 'getHeroCode'
   },
 
   showRules: function(event) {
@@ -447,12 +519,34 @@ var Game = Backbone.Model.extend({
     $('.rules').tab('show');
   },
 
+  showWaiting: function() {
+    if (this.model.runGame() === 'Stop') {
+      alert('Please upload your Hero.js file first.');
+    } else {
+      this.waiting = true;
+      this.render();
+      this.model.runGame();
+    }
+    if (this.model.finished) {
+      this.waiting = false;
+      this.render();
+    }
+  },
+
   render: function(){
     var html;
+    var simulationHtml = '<button class="btn btn-success btn-lg">Simulate Game</button>';
+    var waitingHtml = '<button class="btn btn-danger btn-lg">Waiting for Simulation to Finish</button>';
     if(this.viewing === "rules") {
       html = new EJS({url: '/ejs_templates/rules'}).render(this.model);
-    } 
+    }
     this.$el.html(html);
+    if (!this.waiting) {
+      this.$el.find('.simulate').html(simulationHtml);
+    }
+    if (this.waiting) {
+      this.$el.find('.simulate').html(waitingHtml);
+    }
   },
 
   getHeroCode: function() {
