@@ -65,7 +65,7 @@ var Game = Backbone.Model.extend({
         }
         turnKeeper++;
       }
-      this.gameSet(this.clientSideGame[0]);
+      this.gameSet(this.clientSideGame[1]);
       this.trigger('finished');
     }
   },
@@ -93,23 +93,25 @@ var Game = Backbone.Model.extend({
     _.each(gameData.teams[0], function(heroObject, key, col){
       heroObject.gameTurn = gameData.turn;
       heroObject.battleId = heroObject.id;
+      if (heroObject.id === 0) {
+        heroObject.name = 'YOUR HERO'
+      }
       delete heroObject.id;
 
-      if (gameData.turn === 0) {
-        var hero = new Hero(heroObject);
-        teamYellow.add(hero);
-      }
+      var hero = new Hero(heroObject);
+      teamYellow.add(hero);
     });
     //add team blue hero Models to team collection
     _.each(gameData.teams[1], function(heroObject){
       heroObject.gameTurn = gameData.turn;
       heroObject.battleId = heroObject.id;
+      if (heroObject.id === 0) {
+        heroObject.name = 'YOUR HERO'
+      }
       delete heroObject.id;
 
-      if (gameData.turn === 0) {
-        var hero = new Hero(heroObject);
-        teamBlue.add(hero);
-      }
+      var hero = new Hero(heroObject);
+      teamBlue.add(hero);
     });
 
     

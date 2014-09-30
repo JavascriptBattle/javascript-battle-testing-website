@@ -101,7 +101,7 @@ var GameView = Backbone.View.extend({
     //Initialize new slider and set it to update
     //the turn on slide
     var init = new Powerange(slider, {
-      min: 0,
+      min: this.model.get('turn'),
       max: this.model.get('maxTurn'),
       step: 1,
       callback: function() {
@@ -131,7 +131,7 @@ var GameView = Backbone.View.extend({
       this.pauseGame();
 
       //Updates the turn
-      var turn = this.model.get('turn');
+      var turn = 1;
       var maxTurn = this.model.get('maxTurn');
 
       //Adjusts the turn, but doesn't go below 0 or above the max turn
@@ -149,8 +149,8 @@ var GameView = Backbone.View.extend({
     this.pauseGame();
 
     //Send slider and game to turn 0
-    this.model.updateTurn(0);
-    this.sendSliderToTurn(0);
+    this.model.updateTurn(1);
+    this.sendSliderToTurn(1);
   },
   pauseGame: function() {
     this.paused = true;
