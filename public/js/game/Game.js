@@ -73,8 +73,7 @@ var Game = Backbone.Model.extend({
   },
 
   initialize: function() {
-    var userModel = new User();
-    this.set('userModel', userModel);
+    
   },
   
   gameSet: function(gameData) {
