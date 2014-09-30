@@ -36,6 +36,7 @@ var Game = Backbone.Model.extend({
   runGame: function() {
     if (this.get('heroCode') === undefined) {
       alert('Please upload your Hero.js file first.');
+      return 'Error';
     } else {
       this.waiting = true;
 
