@@ -50,12 +50,10 @@ var Game = Backbone.Model.extend({
       this.setupGame(gameData, gameData.board.lengthOfSide);
       var handleHeroTurn = gameData.handleHeroTurn;
       var turnKeeper = 0;
-      console.log(gameData);
       while (gameData.turn < gameData.maxTurn) {
         if (gameData.heroTurnIndex === 0) {
           var usersFunction = new Function(move);
           var usersMove = usersFunction(gameData, helpers);
-          console.log(usersMove);
           handleHeroTurn.call(gameData, usersMove);
           var newGameData = JSON.parse(JSON.stringify(gameData));
           this.clientSideGame[turnKeeper] = newGameData;

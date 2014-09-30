@@ -2,6 +2,7 @@ var GameView = Backbone.View.extend({
   tagName: 'div',
   className: 'outer',
   initialize: function(){
+    this.$el.html('<br><div class="centered"><img class="start-screen" src="../../img/start-screen.png"></div>');
     this.model.on('finished', function() {
       this.paused = true;
       this.playInProgress = false;
@@ -214,7 +215,7 @@ var GameView = Backbone.View.extend({
       message.text('Blue Team Wins!');
 
     } else {
-      message.text('Simulated Game')
+      message.text('Simulated Game');
     }
   }
 });
