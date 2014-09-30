@@ -33,7 +33,6 @@ var GameView = Backbone.View.extend({
     $('.messages').text('');
     $('.messages').append(this.model.get('killMessages'));
        //Add html for team info
-       console.log(this.model);
     var yellowTeamView = new TeamView({
       collection: this.model.get('teamYellow'),
       className: 'team-info t-yellow',
@@ -53,7 +52,8 @@ var GameView = Backbone.View.extend({
     $gameHtml.append(yellowTeamView.$el);
     $gameHtml.append(boardView.$el);
     $gameHtml.append(blueTeamView.$el);
-    this.$el.find('#H0').append('<span class="arrow"></span>');
+    this.$el.find('#H0').after('<span class="arrow"></span>');
+    console.log(this.$el.find('#H0'));
     this.$el.find('.turn').text('Turn: ' + this.model.get('turn'));
   },
 
