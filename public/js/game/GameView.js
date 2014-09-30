@@ -46,7 +46,6 @@ var GameView = Backbone.View.extend({
     blueTeamView.teamColor = 'Team Blue';
     blueTeamView.diamonds = this.model.get('teamDiamonds')[1];
     blueTeamView.render();
-
     var boardView = new BoardView({collection: this.model.get('board')});
     //Add all board html
     $gameHtml.append(yellowTeamView.$el);
@@ -96,8 +95,6 @@ var GameView = Backbone.View.extend({
     var $slider = this.$el.find('.slider');
     var slider = $slider[0];
 
-    //Get basic info about game state
-    var currentTurn = this.model.get('turn');
     var maxTurn = this.model.get('maxTurn');
 
     //Initialize new slider and set it to update
@@ -151,9 +148,8 @@ var GameView = Backbone.View.extend({
     this.pauseGame();
 
     //Send slider and game to turn 0
-    $.when(this.model.updateTurn(0)).then(function() {
-      this.sendSliderToTurn(0);
-    }.bind(this));
+    this.model.updateTurn(0);
+    this.sendSliderToTurn(0);
   },
   pauseGame: function() {
     this.paused = true;
@@ -191,10 +187,16 @@ var GameView = Backbone.View.extend({
       //Keeps track of whether we are waiting for the promise
       //to resolve (used to prevent issues with users doubleclicking)
       //the play button
-      
-      this.model.updateTurn(currTurn++);
+      this.model.updateTurn(currTurn);
       this.render();
-      this.autoPlayGame();
+      currTurn++;
+
+      // Hacky solution to fix the rendering bug
+      // Backbone could not keep up with rendering all these model changes
+      var that = this;
+      window.setTimeout(function(){
+        that.autoPlayGame();
+      }, 300);
 
       //Updates the slider location to track with the current turn
       // this.sendSliderToTurn(currTurn + 1);
