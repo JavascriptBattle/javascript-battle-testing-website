@@ -33,6 +33,7 @@ var GameView = Backbone.View.extend({
     $('.messages').text('');
     $('.messages').append(this.model.get('killMessages'));
        //Add html for team info
+       console.log(this.model);
     var yellowTeamView = new TeamView({
       collection: this.model.get('teamYellow'),
       className: 'team-info t-yellow',
@@ -52,6 +53,7 @@ var GameView = Backbone.View.extend({
     $gameHtml.append(yellowTeamView.$el);
     $gameHtml.append(boardView.$el);
     $gameHtml.append(blueTeamView.$el);
+    this.$el.find('#H0').append('<span class="arrow"></span>');
     this.$el.find('.turn').text('Turn: ' + this.model.get('turn'));
   },
 
@@ -101,7 +103,7 @@ var GameView = Backbone.View.extend({
     //Initialize new slider and set it to update
     //the turn on slide
     var init = new Powerange(slider, {
-      min: this.model.get('turn'),
+      min: 1,
       max: this.model.get('maxTurn'),
       step: 1,
       callback: function() {
@@ -131,7 +133,7 @@ var GameView = Backbone.View.extend({
       this.pauseGame();
 
       //Updates the turn
-      var turn = 1;
+      var turn = this.model.get('turn');
       var maxTurn = this.model.get('maxTurn');
 
       //Adjusts the turn, but doesn't go below 0 or above the max turn

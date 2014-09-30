@@ -65,7 +65,7 @@ var Game = Backbone.Model.extend({
         }
         turnKeeper++;
       }
-      this.gameSet(this.clientSideGame[1]);
+      this.gameSet(this.clientSideGame[0]);
       this.trigger('finished');
     }
   },
