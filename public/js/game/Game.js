@@ -36,18 +36,23 @@ var Game = Backbone.Model.extend({
   runGame: function() {
     if (this.get('heroCode') === undefined) {
       alert('Please upload your Hero.js file first.');
+      return 'Error';
     } else {
       this.waiting = true;
+
       var move = this.get('heroCode');
       var start = move.indexOf('module.exports = move');
-      move = move.slice(0, move.length - 23);
+      move = move.slice(0, move.length - 26);
+      move += "return move(arguments[0], arguments[1]);";
+
       var helpers = this.helpers;
+
       var gameData = this.clientSideGame[0];
       this.setupGame(gameData, gameData.board.lengthOfSide);
       var handleHeroTurn = gameData.handleHeroTurn;
       var turnKeeper = 0;
-      while (gameData.turn < gameData.maxTurn) {
-        if (gameData.turn === 0 || gameData.turn % 19 === 0) {
+      while (turnKeeper < 1300) {
+        if (gameData.heroTurnIndex === 0) {
           var usersFunction = new Function(move);
           var usersMove = usersFunction(gameData, helpers);
           handleHeroTurn.call(gameData, usersMove);
@@ -61,7 +66,8 @@ var Game = Backbone.Model.extend({
         }
         turnKeeper++;
       }
-      this.gameSet(this.clientSideGame[0]);
+      var copiedGame = JSON.parse(JSON.stringify(this.clientSideGame[0]));
+      this.gameSet(copiedGame);
       this.trigger('finished');
     }
   },
@@ -89,23 +95,25 @@ var Game = Backbone.Model.extend({
     _.each(gameData.teams[0], function(heroObject, key, col){
       heroObject.gameTurn = gameData.turn;
       heroObject.battleId = heroObject.id;
+      if (heroObject.id === 0) {
+        heroObject.name = 'YOUR HERO'
+      }
       delete heroObject.id;
 
-      if (gameData.turn === 0) {
-        var hero = new Hero(heroObject);
-        teamYellow.add(hero);
-      }
+      var hero = new Hero(heroObject);
+      teamYellow.add(hero);
     });
     //add team blue hero Models to team collection
     _.each(gameData.teams[1], function(heroObject){
       heroObject.gameTurn = gameData.turn;
       heroObject.battleId = heroObject.id;
+      if (heroObject.id === 0) {
+        heroObject.name = 'YOUR HERO'
+      }
       delete heroObject.id;
 
-      if (gameData.turn === 0) {
-        var hero = new Hero(heroObject);
-        teamBlue.add(hero);
-      }
+      var hero = new Hero(heroObject);
+      teamBlue.add(hero);
     });
 
     
@@ -126,7 +134,7 @@ var Game = Backbone.Model.extend({
   },
 
   updateTurn: function(turn) {
-    this.gameSet(this.clientSideGame[turn]);
-    // this.set('board', gameModel);
+    var copiedGame = JSON.parse(JSON.stringify(this.clientSideGame[turn]));
+    this.gameSet(copiedGame);
   }
 });

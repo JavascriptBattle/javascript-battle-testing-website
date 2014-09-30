@@ -2,6 +2,7 @@ var GameView = Backbone.View.extend({
   tagName: 'div',
   className: 'outer',
   initialize: function(){
+    this.$el.html('<br><div class="centered"><img class="start-screen" src="../../img/start-screen.png"></div>');
     this.model.on('finished', function() {
       this.paused = true;
       this.playInProgress = false;
@@ -51,6 +52,7 @@ var GameView = Backbone.View.extend({
     $gameHtml.append(yellowTeamView.$el);
     $gameHtml.append(boardView.$el);
     $gameHtml.append(blueTeamView.$el);
+    this.$el.find('#H0').after('<span class="arrow"></span>');
     this.$el.find('.turn').text('Turn: ' + this.model.get('turn'));
   },
 
@@ -109,17 +111,20 @@ var GameView = Backbone.View.extend({
 
         //Slider value will range from the min to max
         this.model.updateTurn(slider.value);
+        this.render();
 
       }.bind(this)
     });
 
     //Allows users to change the turn with arrow keys
     $(document).keydown(function(e) {
-      var turnAdjustment = 0;
+      //Updates the turn
+      var turn = this.model.get('turn') - 1;
+      var maxTurn = this.model.get('maxTurn');
       if (e.which === 39) {
-        turnAdjustment = 1;
+        turn++;
       } else if (e.which === 37) {
-        turnAdjustment = -1;
+        turn--;
       } else {
         //does nothing
         return;
@@ -129,18 +134,16 @@ var GameView = Backbone.View.extend({
       //Pauses the game, then goes to the turn specified
       this.pauseGame();
 
-      //Updates the turn
-      var turn = this.model.get('turn');
-      var maxTurn = this.model.get('maxTurn');
 
       //Adjusts the turn, but doesn't go below 0 or above the max turn
-      var newTurn = Math.max(Math.min(turn + turnAdjustment, maxTurn),0);
+      var newTurn = Math.max(Math.min(turn, maxTurn),1);
 
       //Updates the model
       this.model.updateTurn(newTurn);
 
       //Send slider to new location
       this.sendSliderToTurn(newTurn);
+      this.render();
 
     }.bind(this));
   },
@@ -150,6 +153,7 @@ var GameView = Backbone.View.extend({
     //Send slider and game to turn 0
     this.model.updateTurn(0);
     this.sendSliderToTurn(0);
+    this.render();
   },
   pauseGame: function() {
     this.paused = true;
@@ -188,6 +192,7 @@ var GameView = Backbone.View.extend({
       //to resolve (used to prevent issues with users doubleclicking)
       //the play button
       this.model.updateTurn(currTurn);
+      this.sendSliderToTurn(currTurn);
       this.render();
       currTurn++;
 
@@ -214,7 +219,7 @@ var GameView = Backbone.View.extend({
       message.text('Blue Team Wins!');
 
     } else {
-      message.text('Simulated Game')
+      message.text('Simulated Game');
     }
   }
 });
