@@ -38,18 +38,24 @@ var Game = Backbone.Model.extend({
       alert('Please upload your Hero.js file first.');
     } else {
       this.waiting = true;
+
       var move = this.get('heroCode');
       var start = move.indexOf('module.exports = move');
-      move = move.slice(0, move.length - 23);
+      move = move.slice(0, move.length - 26);
+      move += "return move(arguments[0], arguments[1]);";
+
       var helpers = this.helpers;
+
       var gameData = this.clientSideGame[0];
       this.setupGame(gameData, gameData.board.lengthOfSide);
       var handleHeroTurn = gameData.handleHeroTurn;
       var turnKeeper = 0;
+      console.log(gameData);
       while (gameData.turn < gameData.maxTurn) {
-        if (gameData.turn === 0 || gameData.turn % 19 === 0) {
+        if (gameData.heroTurnIndex === 0) {
           var usersFunction = new Function(move);
           var usersMove = usersFunction(gameData, helpers);
+          console.log(usersMove);
           handleHeroTurn.call(gameData, usersMove);
           var newGameData = JSON.parse(JSON.stringify(gameData));
           this.clientSideGame[turnKeeper] = newGameData;
