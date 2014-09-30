@@ -53,7 +53,6 @@ var GameView = Backbone.View.extend({
     $gameHtml.append(boardView.$el);
     $gameHtml.append(blueTeamView.$el);
     this.$el.find('#H0').after('<span class="arrow"></span>');
-    console.log(this.$el.find('#H0'));
     this.$el.find('.turn').text('Turn: ' + this.model.get('turn'));
   },
 
@@ -103,7 +102,7 @@ var GameView = Backbone.View.extend({
     //Initialize new slider and set it to update
     //the turn on slide
     var init = new Powerange(slider, {
-      min: 1,
+      min: 0,
       max: this.model.get('maxTurn'),
       step: 1,
       callback: function() {
@@ -141,8 +140,10 @@ var GameView = Backbone.View.extend({
 
       //Updates the model
       this.model.updateTurn(newTurn);
+      this.render();
 
       //Send slider to new location
+      console.log(newTurn);
       this.sendSliderToTurn(newTurn);
 
     }.bind(this));
@@ -151,8 +152,9 @@ var GameView = Backbone.View.extend({
     this.pauseGame();
 
     //Send slider and game to turn 0
-    this.model.updateTurn(1);
-    this.sendSliderToTurn(1);
+    this.model.updateTurn(0);
+    this.render();
+    this.sendSliderToTurn(0);
   },
   pauseGame: function() {
     this.paused = true;
