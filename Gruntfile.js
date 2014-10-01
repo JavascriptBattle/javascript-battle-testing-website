@@ -4,7 +4,20 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('package.json'),
 
     browserify: {
-      'public/app.js': ['public/bundle']
+      options: {
+        debug: true
+      },
+      dev: {
+        src: ['public/app.js'],
+        dest: 'public/browserify-bundle.js'
+      },
+      production: {
+        options: {
+          debug: false
+        },
+        src: '<%= browserify.dev.src %>',
+        dest: 'public/browserify-bundle.js'
+      }
     },
 
     mochaTest: {
@@ -49,7 +62,7 @@ module.exports = function(grunt) {
         separator: ';'
       },
       js: {
-        src: ['public/js/**/*.js','public/app.js'],
+        src: ['public/js/**/*.js'],
         dest: 'public/dist/<%= pkg.name %>.js'
       }
     },
@@ -89,11 +102,11 @@ module.exports = function(grunt) {
   });
 
   
+  grunt.loadNpmTasks('grunt-browserify');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-browserify');
   // grunt.loadNpmTasks('grunt-blanket');
   grunt.loadNpmTasks('grunt-mocha-test');
   grunt.loadNpmTasks('grunt-contrib-watch');
@@ -128,7 +141,7 @@ module.exports = function(grunt) {
   grunt.registerTask('local', ['jshint', 'test', 'nodemon']);
 
 
-  grunt.registerTask('default', ['concat', 'uglify', 'cssmin']);
+  grunt.registerTask('default', ['browserify', 'concat', 'uglify', 'cssmin']);
 
 
   // grunt.registerTask('upload', function(n) {

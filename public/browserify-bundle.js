@@ -16,10 +16,6 @@ $('.navbar').append(app.navbarView.$el);
 
 app.rulesView = new RulesView({ model: app.game });
 $('#rules').append(app.rulesView.$el);
-
-
-
-
 },{"./game_classes/Game.js":4,"./helpers.js":9}],2:[function(require,module,exports){
 var Unoccupied = require('./Unoccupied.js');
 

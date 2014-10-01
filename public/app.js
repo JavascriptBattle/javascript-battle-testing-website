@@ -15,6 +15,3 @@ $('.navbar').append(app.navbarView.$el);
 
 app.rulesView = new RulesView({ model: app.game });
 $('#rules').append(app.rulesView.$el);
-
-
-
