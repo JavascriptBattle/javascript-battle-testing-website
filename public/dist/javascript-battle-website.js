@@ -125,7 +125,7 @@ var Game = Backbone.Model.extend({
 
       var helpers = this.helpers;
 
-      var gameData = this.clientSideGame[0];
+      var gameData = this.clientSideGame['setup'];
       this.setupGame(gameData, gameData.board.lengthOfSide);
       var handleHeroTurn = gameData.handleHeroTurn;
       var turnKeeper = 0;

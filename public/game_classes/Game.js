@@ -419,7 +419,7 @@ Game.prototype.heroDied = function(hero) {
   left = hero.distanceFromLeft;
   var bones = new Unoccupied(top, left);
   bones.subType = 'Bones';
-  // this.board.tiles[top][left] = bones;
+  this.board.tiles[top][left] = bones;
 };
 
 module.exports = Game;
