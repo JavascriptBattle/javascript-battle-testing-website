@@ -72,7 +72,6 @@ var Game = Backbone.Model.extend({
 
       while (turnKeeper < 1300) {
         if (gameData.heroTurnIndex === 0) {
-          console.log(gameData)
           var usersFunction = new Function(move);
           var usersMove = (usersFunction(gameData, helpers));
           handleHeroTurn.call(gameData, usersMove);
@@ -87,7 +86,7 @@ var Game = Backbone.Model.extend({
         turnKeeper++;
       }
       this.clientSideGame.played = true;
-      this.gameSet(this.clientSideGame[0]);
+      this.gameSet(this.clientSideGame[1]);
       this.trigger('finished');
     }
   },
@@ -153,7 +152,6 @@ var Game = Backbone.Model.extend({
   },
 
   updateTurn: function(turn) {
-    var copiedGame = JSON.parse(JSON.stringify(this.clientSideGame[turn]));
-    this.gameSet(copiedGame);
+    this.gameSet(this.clientSideGame[turn]);
   }
 });

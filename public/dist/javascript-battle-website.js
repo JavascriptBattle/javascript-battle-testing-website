@@ -79,9 +79,23 @@ var Board = Backbone.Collection.extend({
 ;
 var Game = Backbone.Model.extend({
 
-  clientSideGame: {},
+  clientSideGame: {
+    played: false
+  },
 
   helpers: {},
+
+  deepCopy: function(copyFrom, copyTo) {
+    for (var key in copyFrom) {
+      if (typeof copyFrom[key] === 'function') {
+        copyTo[key] = copyFrom[key];
+      } else if (typeof copyFrom[key] === 'object' && copyFrom[key].constructor) {
+        for (var otherKey in copyFrom[key].constructor.prototype) {
+          copyTo[key][otherKey] = copyFrom[key].constructor.prototype[otherKey];
+        }
+      }
+    }
+  },
 
   setupGame: function(game, boardSize) {
     var randomNumber = function(max) {
@@ -124,28 +138,33 @@ var Game = Backbone.Model.extend({
       move += "return move(arguments[0], arguments[1]);";
 
       var helpers = this.helpers;
+      var gameData = JSON.parse(JSON.stringify(this.clientSideGame['setup']));
+      this.deepCopy(this.clientSideGame['setup'], gameData);
 
-      var gameData = this.clientSideGame['setup'];
-      this.setupGame(gameData, gameData.board.lengthOfSide);
+      if (!this.clientSideGame.played) {
+        this.setupGame(gameData, gameData.board.lengthOfSide);
+      }
+
       var handleHeroTurn = gameData.handleHeroTurn;
       var turnKeeper = 0;
+
       while (turnKeeper < 1300) {
         if (gameData.heroTurnIndex === 0) {
           var usersFunction = new Function(move);
-          var usersMove = usersFunction(gameData, helpers);
+          var usersMove = (usersFunction(gameData, helpers));
           handleHeroTurn.call(gameData, usersMove);
-          var newGameData = JSON.parse(JSON.stringify(gameData));
-          this.clientSideGame[turnKeeper] = newGameData;
+          this.clientSideGame[turnKeeper] = JSON.parse(JSON.stringify(gameData));
+          this.deepCopy(gameData, this.clientSideGame[turnKeeper]);
         } else {
           var choices = ['North', 'South', 'East', 'West'];
-          handleHeroTurn.call(gameData, choices[Math.floor(Math.random()*4)]); 
-          var newGameData = JSON.parse(JSON.stringify(gameData));
-          this.clientSideGame[turnKeeper] = newGameData;
+          handleHeroTurn.call(gameData, (choices[Math.floor(Math.random()*4)])); 
+          this.clientSideGame[turnKeeper] = JSON.parse(JSON.stringify(gameData));
+          this.deepCopy(gameData, this.clientSideGame[turnKeeper]);
         }
         turnKeeper++;
       }
-      var copiedGame = JSON.parse(JSON.stringify(this.clientSideGame[0]));
-      this.gameSet(copiedGame);
+      this.clientSideGame.played = true;
+      this.gameSet(this.clientSideGame[1]);
       this.trigger('finished');
     }
   },
@@ -211,8 +230,7 @@ var Game = Backbone.Model.extend({
   },
 
   updateTurn: function(turn) {
-    var copiedGame = JSON.parse(JSON.stringify(this.clientSideGame[turn]));
-    this.gameSet(copiedGame);
+    this.gameSet(this.clientSideGame[turn]);
   }
 });;var GameView = Backbone.View.extend({
   tagName: 'div',

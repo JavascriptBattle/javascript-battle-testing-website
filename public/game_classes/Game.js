@@ -38,7 +38,7 @@ var Game = function(n) {
   this.killMessage = '';
 
   //Default is 300, can be overwritten
-  this.maxTurn = 1300;
+  this.maxTurn = 1000;
   this.turn = 0;
 
   //Prevents adding of new objects
@@ -415,8 +415,8 @@ Game.prototype._incrementTurn = function() {
 Game.prototype.heroDied = function(hero) {
 
   // Removes a dead hero from the board
-  top = hero.distanceFromTop;
-  left = hero.distanceFromLeft;
+  var top = hero.distanceFromTop;
+  var left = hero.distanceFromLeft;
   var bones = new Unoccupied(top, left);
   bones.subType = 'Bones';
   this.board.tiles[top][left] = bones;
