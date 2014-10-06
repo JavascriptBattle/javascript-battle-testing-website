@@ -12,8 +12,9 @@ var Game = Backbone.Model.extend({
       if (typeof copyFrom[key] === 'function') {
         copyTo[key] = copyFrom[key];
       } else if (typeof copyFrom[key] === 'object' && copyFrom[key].constructor) {
-        copyTo[key].prototype = copyFrom[key].constructor.prototype;
-        copyTo[key].constructor = copyTo[key];
+        for (var otherKey in copyFrom[key].constructor.prototype) {
+          copyTo[key][otherKey] = copyFrom[key].constructor.prototype[otherKey];
+        }
       }
     }
   },
@@ -59,10 +60,8 @@ var Game = Backbone.Model.extend({
       move += "return move(arguments[0], arguments[1]);";
 
       var helpers = this.helpers;
-console.log('before', this.clientSideGame['setup']);
       var gameData = JSON.parse(JSON.stringify(this.clientSideGame['setup']));
       this.deepCopy(this.clientSideGame['setup'], gameData);
-      console.log('after', gameData);
 
       if (!this.clientSideGame.played) {
         this.setupGame(gameData, gameData.board.lengthOfSide);
@@ -73,6 +72,7 @@ console.log('before', this.clientSideGame['setup']);
 
       while (turnKeeper < 1300) {
         if (gameData.heroTurnIndex === 0) {
+          console.log(gameData)
           var usersFunction = new Function(move);
           var usersMove = (usersFunction(gameData, helpers));
           handleHeroTurn.call(gameData, usersMove);
