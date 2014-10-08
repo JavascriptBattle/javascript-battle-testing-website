@@ -6,7 +6,7 @@ var Board = Backbone.Collection.extend({
   className: 'battle-tile',
   initialize: function() {
     if (this.model === undefined) {
-      console.log(undefined, this);
+      console.log(undefined);
     }
     this.render();
     this.model.on('change', this.render());
@@ -121,14 +121,22 @@ var Game = Backbone.Model.extend({
       this.waiting = true;
 
       var move = this.get('heroCode');
-      var start = move.indexOf('module.exports = move');
-      move = move.slice(0, move.length - 26);
-      move += "return move(arguments[0], arguments[1]);";
+      var end = move.indexOf('module.exports = move;', move.length - 25);
+      move = move.slice(0, end);
+      move += "\n return move(arguments[0], arguments[1]);";
 
       var helpers = this.helpers;
       var gameData = owl.deepCopy(this.clientSideGame['setup']);
 
       if (!this.clientSideGame.played) {
+        this.setupGame(gameData, gameData.board.lengthOfSide);
+      } else {
+        console.clear();
+        for (var key in this.clientSideGame) {
+          if (key !== 'setup' && key !== 'played') {
+            delete this.clientSideGame[key];
+          }
+        }
         this.setupGame(gameData, gameData.board.lengthOfSide);
       }
 
@@ -150,14 +158,13 @@ var Game = Backbone.Model.extend({
         turnKeeper++;
       }
       this.clientSideGame.played = true;
-      this.gameSet(this.clientSideGame[0]);
       this.set('maxTurn', max);
       this.trigger('finished');
     }
   },
 
   initialize: function() {
-    
+
   },
   
   gameSet: function(gameData) {
@@ -180,7 +187,6 @@ var Game = Backbone.Model.extend({
       heroObject.battleId = heroObject.id;
       if (heroObject.battleId === 0 || heroObject.battleId === 'YOU') {
         heroObject.name = 'YOUR HERO';
-        console.log(heroObject);
       }
 
       var hero = new Hero(heroObject);
@@ -192,7 +198,6 @@ var Game = Backbone.Model.extend({
       heroObject.battleId = heroObject.id;
       if (heroObject.battleId === 0) {
         heroObject.name = 'YOUR HERO';
-        console.log(heroObject);
       }
 
       var hero = new Hero(heroObject);
@@ -212,6 +217,12 @@ var Game = Backbone.Model.extend({
     this.set('teamYellow', teamYellow);
     this.set('teamBlue', teamBlue);
     this.set('board', board);
+    if (gameData.heroTurnIndex === 1) {
+      console.log('**********');
+      console.log('Turn number: ', gameData.turn);
+      console.log('Your hero ' + gameData.moveMessage.slice(7));
+      console.log('**********');
+    }
   },
 
   updateTurn: function(turn) {
@@ -222,7 +233,9 @@ var Game = Backbone.Model.extend({
   className: 'outer',
   initialize: function(){
     this.$el.html('<br><div class="centered"><img class="start-screen" src="../../img/start-screen.png"></div>');
+    console.log('Welcome to the hero tester!!!');
     this.model.on('finished', function() {
+      console.log('Simulation finished.\nYour hero\'s move will be logged as the game plays.');
       this.paused = true;
       this.playInProgress = false;
       this.sliderInitialized = false; 
@@ -322,7 +335,7 @@ var Game = Backbone.Model.extend({
     //the turn on slide
     var init = new Powerange(slider, {
       min: 0,
-      max: this.model.get('maxTurn'),
+      max: maxTurn,
       step: 1,
       callback: function() {
         //Pause the game
@@ -452,7 +465,32 @@ var Game = Backbone.Model.extend({
   render: function(){
     var html;
 
-    html = new EJS({url: '../ejs_templates/navbarNotLoggedIn'}).render(this.model);
+    html = '' +
+    '<div class="container">' +
+      '<div class="navbar-header page-scroll">' +
+        '<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">' + 
+          '<span class="sr-only">Toggle navigation</span>' +
+          '<span class="icon-bar"></span>' +
+          '<span class="icon-bar"></span>' +
+          '<span class="icon-bar"></span>' +
+        '</button>' + 
+        '<a class="navbar-brand" href="#page-top">Javascript Battle</a>' +
+      '</div>' +
+    
+      '<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">' +
+        '<ul class="nav navbar-nav navbar-right">' +
+          '<li class="hidden">' +
+            '<a href="#page-top"></a>' +
+          '</li>' +
+          '<li class="page-scroll">' +
+            '<a href="#rules">Instructions</a>' +
+          '</li>' +
+          '<li class="page-scroll">' +
+            '<a href="#replay">Battle</a>' +
+          '</li>' +
+        '</ul>' +
+      '</div>' +
+    '</div>'
     
     this.$el.html(html);
   }
@@ -471,16 +509,63 @@ var Game = Backbone.Model.extend({
   simulate: function() {
     this.waiting = true;
     this.render();
+    console.log('Starting simulation...');
     var that = this;
     window.setTimeout(function() {
       that.model.runGame();
       that.waiting = false;
       that.render();
-    }, 500);
+    }, 300);
   },
 
   render: function(){
-    var html = new EJS({url: '/ejs_templates/rules'}).render(this.model);
+    var html = '' +
+      '<div class="container">' +
+        '<div class="row">' +
+          '<div class="col-lg-12 text-center">' +
+            '<h2>Instructions</h2>' +
+            '<hr class="star-primary">' +
+          '</div>' +
+        '</div>' +
+        '<div class="row">' +
+          '<div class="col-lg-8 col-lg-offset-2 text-center info-header">' +
+            'Want to see how youre hero might perform in tomorrow\'s battle? Follow the instructions below to test your hero code right here, right now.' +
+          '</div>' +
+        '</div>' +
+        '<div class="row nav-buttons">' +
+          '<div class="col-lg-8 btn-group btn-group-justified">' +
+            '<div class="active rules btn-group">' +
+              '<button type="button" class="btn btn-secondary" disabled>Instructions</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="row">' +
+          '<div class="col-lg-8 col-lg-offset-2">' +
+            '<ul class="info-list">' +
+              '<ul class="rules-list">' +
+                '<li>Upload your hero.js file below.</li>' +
+                '<li>Your hero\'s code will be run through a simulation game in your browser.*</li>' +
+                '<li>When the simulation is complete, you can watch the game below.</li>' +
+                '<li>After viewing your simulated battle, feel free to make any changes you need and repeat these steps until you are satisfied with you hero\'s performance.</li>' +
+                '<li>Good luck in tomorrow\'s battle!</li>' +
+              '</ul>' +
+            '</ul>' +
+            '* Your code will be run in your browser and not on our server, so it would be easy to cheat here. Just know those tricks won\'t work in the real game!' +
+          '</div>' +
+        '</div>' +
+        '<br>' +
+        '<br>' +
+        '<div class="centered">' +
+          '<input type="file" id="hero" title="Upload Hero.js here">' +
+        '</div>' +
+        '<br>' +
+        '<div class="centered simulate">' +
+        '</div>' +
+        '<script>' +
+          '$("input[type=file]").bootstrapFileInput()' +
+        '</script>' +
+      '</div>'
+
     var simulationHtml = '<button class="btn btn-success btn-lg">Simulate Game</button>';
     var waitingHtml = '<button class="btn btn-danger btn-lg">Waiting for Simulation to Finish</button>';
 
@@ -500,6 +585,7 @@ var Game = Backbone.Model.extend({
     var that = this;
     reader.onload = function(e) {
       that.model.set('heroCode', reader.result);
+      console.log('Hero code has been saved.\nNo need to re-upload, unless you have changed your file.');
     };
     reader.readAsText(heroCode);
 
