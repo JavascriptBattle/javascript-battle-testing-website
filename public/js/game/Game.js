@@ -53,6 +53,7 @@ var Game = Backbone.Model.extend({
       if (!this.clientSideGame.played) {
         this.setupGame(gameData, gameData.board.lengthOfSide);
       } else {
+        console.clear();
         for (var key in this.clientSideGame) {
           if (key !== 'setup' && key !== 'played') {
             delete this.clientSideGame[key];
@@ -79,7 +80,6 @@ var Game = Backbone.Model.extend({
         turnKeeper++;
       }
       this.clientSideGame.played = true;
-      this.gameSet(this.clientSideGame[0]);
       this.set('maxTurn', max);
       this.trigger('finished');
     }

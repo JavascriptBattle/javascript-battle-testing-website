@@ -13,12 +13,13 @@ var RulesView = Backbone.View.extend({
   simulate: function() {
     this.waiting = true;
     this.render();
+    console.log('Starting simulation...');
     var that = this;
     window.setTimeout(function() {
       that.model.runGame();
       that.waiting = false;
       that.render();
-    }, 500);
+    }, 300);
   },
 
   render: function(){
@@ -42,6 +43,7 @@ var RulesView = Backbone.View.extend({
     var that = this;
     reader.onload = function(e) {
       that.model.set('heroCode', reader.result);
+      console.log('Hero code has been saved.\nNo need to re-upload, unless you have changed your file.');
     };
     reader.readAsText(heroCode);
 

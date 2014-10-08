@@ -3,7 +3,9 @@ var GameView = Backbone.View.extend({
   className: 'outer',
   initialize: function(){
     this.$el.html('<br><div class="centered"><img class="start-screen" src="../../img/start-screen.png"></div>');
+    console.log('Welcome to the hero tester!!!');
     this.model.on('finished', function() {
+      console.log('Simulation finished.');
       this.paused = true;
       this.playInProgress = false;
       this.sliderInitialized = false; 
