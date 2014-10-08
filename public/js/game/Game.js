@@ -60,9 +60,10 @@ var Game = Backbone.Model.extend({
       move += "return move(arguments[0], arguments[1]);";
 
       var helpers = this.helpers;
-      var gameData = JSON.parse(JSON.stringify(this.clientSideGame['setup']));
-      this.deepCopy(this.clientSideGame['setup'], gameData);
-
+      if (window.localStorage.length > 1) {
+        window.localStorage.
+      }
+      var gameData = window.localStorage.getItem('setup');
       if (!this.clientSideGame.played) {
         this.setupGame(gameData, gameData.board.lengthOfSide);
       }
@@ -70,23 +71,21 @@ var Game = Backbone.Model.extend({
       var handleHeroTurn = gameData.handleHeroTurn;
       var turnKeeper = 0;
 
-      while (turnKeeper < 1300) {
+      while (turnKeeper < 1010) {
         if (gameData.heroTurnIndex === 0) {
           var usersFunction = new Function(move);
           var usersMove = (usersFunction(gameData, helpers));
           handleHeroTurn.call(gameData, usersMove);
-          this.clientSideGame[turnKeeper] = JSON.parse(JSON.stringify(gameData));
-          this.deepCopy(gameData, this.clientSideGame[turnKeeper]);
+          this.clientSideGame[turnKeeper] = Object.freeze(gameData);
         } else {
           var choices = ['North', 'South', 'East', 'West'];
           handleHeroTurn.call(gameData, (choices[Math.floor(Math.random()*4)])); 
-          this.clientSideGame[turnKeeper] = JSON.parse(JSON.stringify(gameData));
-          this.deepCopy(gameData, this.clientSideGame[turnKeeper]);
+          this.clientSideGame[turnKeeper] = Object.freeze(gameData);
         }
         turnKeeper++;
       }
       this.clientSideGame.played = true;
-      this.gameSet(this.clientSideGame[1]);
+      this.gameSet(this.clientSideGame[0]);
       this.trigger('finished');
     }
   },
@@ -139,13 +138,11 @@ var Game = Backbone.Model.extend({
     _.each(_.flatten(gameData.board.tiles), function(tileObject, key, list) {
       //The id from our game model was overwriting 
       tileObject.battleId = tileObject.id;
-      delete tileObject.id;
       tileObject.gameTurn = this.get('turn');
       var tile = new BoardTile(tileObject);
       board.add(tile);
 
     }.bind(this));
-
     this.set('teamYellow', teamYellow);
     this.set('teamBlue', teamBlue);
     this.set('board', board);

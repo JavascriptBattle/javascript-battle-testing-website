@@ -3,7 +3,7 @@ var app = {};
 app.game = new Game();
 
 var initialGame = require('./game_classes/Game.js');
-app.game.clientSideGame['setup'] = new initialGame(12);
+$.localStorage.set('setup', initialGame);
 
 app.game.helpers = require('./helpers.js');
 
