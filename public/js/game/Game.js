@@ -98,29 +98,28 @@ var Game = Backbone.Model.extend({
     _.each(gameData.teams[0], function(heroObject, key, col){
       heroObject.gameTurn = gameData.turn;
       heroObject.battleId = heroObject.id;
-      if (heroObject.id === 0) {
-        heroObject.name = 'YOUR HERO'
-      }
-      delete heroObject.id;
+      // delete heroObject.id;
+      // if (heroObject.battleId === 0) {
+      //   heroObject.name = 'YOUR HERO'
+      // }
 
       var hero = new Hero(heroObject);
       teamYellow.add(hero);
     });
     //add team blue hero Models to team collection
-    _.each(gameData.teams[1], function(heroObject){
+    _.each(gameData.teams[1], function(heroObject, key, col){
       heroObject.gameTurn = gameData.turn;
       heroObject.battleId = heroObject.id;
-      if (heroObject.id === 0) {
-        heroObject.name = 'YOUR HERO'
-      }
-      delete heroObject.id;
+      // delete heroObject.id;
+      // if (heroObject.battleId === 0) {
+      //   heroObject.name = 'YOUR HERO'
+      // }
 
       var hero = new Hero(heroObject);
       teamBlue.add(hero);
     });
 
     
-
     _.each(_.flatten(gameData.board.tiles), function(tileObject, key, list) {
       //The id from our game model was overwriting 
       tileObject.battleId = tileObject.id;

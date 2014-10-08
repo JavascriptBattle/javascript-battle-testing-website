@@ -126,8 +126,8 @@ var Game = Backbone.Model.extend({
       move += "return move(arguments[0], arguments[1]);";
 
       var helpers = this.helpers;
-      var gameData = deepCopy(this.clientSideGame['setup']);
-      console.log(gameData);
+      var gameData = owl.deepCopy(this.clientSideGame['setup']);
+
       if (!this.clientSideGame.played) {
         this.setupGame(gameData, gameData.board.lengthOfSide);
       }
@@ -135,16 +135,17 @@ var Game = Backbone.Model.extend({
       var handleHeroTurn = gameData.handleHeroTurn;
       var turnKeeper = 0;
 
-      while (turnKeeper < 1010) {
+      while (gameData.hasEnded === false || turnKeeper < 1010) {
         if (gameData.heroTurnIndex === 0) {
           var usersFunction = new Function(move);
           var usersMove = (usersFunction(gameData, helpers));
+          console.log(usersMove)
           handleHeroTurn.call(gameData, usersMove);
-          this.clientSideGame[turnKeeper] = Object.freeze(gameData);
+          this.clientSideGame[turnKeeper] = owl.deepCopy(gameData);
         } else {
           var choices = ['North', 'South', 'East', 'West'];
           handleHeroTurn.call(gameData, (choices[Math.floor(Math.random()*4)])); 
-          this.clientSideGame[turnKeeper] = Object.freeze(gameData);
+          this.clientSideGame[turnKeeper] = owl.deepCopy(gameData);
         }
         turnKeeper++;
       }
@@ -174,35 +175,36 @@ var Game = Backbone.Model.extend({
 
     //add team yellow hero Models to team collection
     _.each(gameData.teams[0], function(heroObject, key, col){
-      heroObject.gameTurn = gameData.turn;
-      heroObject.battleId = heroObject.id;
-      if (heroObject.id === 0) {
-        heroObject.name = 'YOUR HERO'
-      }
-      delete heroObject.id;
+      // heroObject.gameTurn = gameData.turn;
+      // heroObject.battleId = heroObject.id;
+      // delete heroObject.id;
+      // if (heroObject.battleId === 0) {
+      //   heroObject.name = 'YOUR HERO'
+      // }
 
       var hero = new Hero(heroObject);
       teamYellow.add(hero);
     });
     //add team blue hero Models to team collection
-    _.each(gameData.teams[1], function(heroObject){
-      heroObject.gameTurn = gameData.turn;
-      heroObject.battleId = heroObject.id;
-      if (heroObject.id === 0) {
-        heroObject.name = 'YOUR HERO'
-      }
-      delete heroObject.id;
+    _.each(gameData.teams[1], function(heroObject, key, col){
+      // heroObject.gameTurn = gameData.turn;
+      // heroObject.battleId = heroObject.id;
+      // delete heroObject.id;
+      // if (heroObject.battleId === 0) {
+      //   heroObject.name = 'YOUR HERO'
+      // }
 
       var hero = new Hero(heroObject);
       teamBlue.add(hero);
     });
 
     
-
+console.log(gameData.board.tiles);
     _.each(_.flatten(gameData.board.tiles), function(tileObject, key, list) {
       //The id from our game model was overwriting 
-      tileObject.battleId = tileObject.id;
-      tileObject.gameTurn = this.get('turn');
+      // tileObject.battleId = tileObject.id;
+      // delete tileObject.id;
+      // tileObject.gameTurn = this.get('turn');
       var tile = new BoardTile(tileObject);
       board.add(tile);
 
