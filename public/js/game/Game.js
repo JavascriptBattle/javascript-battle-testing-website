@@ -140,7 +140,10 @@ var Game = Backbone.Model.extend({
     this.set('teamBlue', teamBlue);
     this.set('board', board);
     if (gameData.heroTurnIndex === 1) {
+      console.log('**********');
+      console.log('Turn number: ', gameData.turn);
       console.log('Your hero ' + gameData.moveMessage.slice(7));
+      console.log('**********');
     }
   },
 
