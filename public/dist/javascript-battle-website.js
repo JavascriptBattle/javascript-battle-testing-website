@@ -421,9 +421,7 @@ var Game = Backbone.Model.extend({
 
     //If the game is not yet over, go to next turn
     if (currTurn < maxTurn && this.paused === false) {
-      //Keeps track of whether we are waiting for the promise
-      //to resolve (used to prevent issues with users doubleclicking)
-      //the play button
+      
       this.model.updateTurn(currTurn);
       this.sendSliderToTurn(currTurn);
       this.render();
@@ -434,13 +432,8 @@ var Game = Backbone.Model.extend({
       var that = this;
       window.setTimeout(function(){
         that.autoPlayGame();
-      }, 300);
+      }, 100);
 
-      //Updates the slider location to track with the current turn
-      // this.sendSliderToTurn(currTurn + 1);
-
-      //Runs this again (will run until no turns are left or
-      //until paused)
     }  
   },
   checkWinner: function() {
@@ -474,7 +467,7 @@ var Game = Backbone.Model.extend({
           '<span class="icon-bar"></span>' +
           '<span class="icon-bar"></span>' +
         '</button>' + 
-        '<a class="navbar-brand" href="#page-top">Javascript Battle</a>' +
+        '<a class="navbar-brand" href="#page-top">Javascript Battle Code Tester</a>' +
       '</div>' +
     
       '<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">' +
@@ -592,18 +585,6 @@ var Game = Backbone.Model.extend({
   }
 
 
-});;var SiteDownView = Backbone.View.extend({
-
-  initialize: function(){
-    this.render();
-  },
-
-  render: function(){
-    var html = '<div class="site-down"><div class="row text-center"><h1 class="col-lg-12">Sorry, something went wrong</h1></div><div class="row"><img class="img-responsive" src="../../img/sad-knight.png"></div><div class="row text-center"><h3 class="col-lg-12">Please check back in a couple hours!</h4></div></div>';
-
-    
-    this.$el.html(html);
-  }
 });;/**
  * cbpAnimatedHeader.js v1.0.0
  * http://www.codrops.com

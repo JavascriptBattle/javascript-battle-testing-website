@@ -191,9 +191,7 @@ var GameView = Backbone.View.extend({
 
     //If the game is not yet over, go to next turn
     if (currTurn < maxTurn && this.paused === false) {
-      //Keeps track of whether we are waiting for the promise
-      //to resolve (used to prevent issues with users doubleclicking)
-      //the play button
+      
       this.model.updateTurn(currTurn);
       this.sendSliderToTurn(currTurn);
       this.render();
@@ -204,13 +202,8 @@ var GameView = Backbone.View.extend({
       var that = this;
       window.setTimeout(function(){
         that.autoPlayGame();
-      }, 300);
+      }, 100);
 
-      //Updates the slider location to track with the current turn
-      // this.sendSliderToTurn(currTurn + 1);
-
-      //Runs this again (will run until no turns are left or
-      //until paused)
     }  
   },
   checkWinner: function() {
