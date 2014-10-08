@@ -103,7 +103,7 @@ var GameView = Backbone.View.extend({
     //the turn on slide
     var init = new Powerange(slider, {
       min: 0,
-      max: this.model.get('maxTurn'),
+      max: maxTurn,
       step: 1,
       callback: function() {
         //Pause the game

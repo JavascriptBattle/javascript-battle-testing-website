@@ -52,6 +52,13 @@ var Game = Backbone.Model.extend({
 
       if (!this.clientSideGame.played) {
         this.setupGame(gameData, gameData.board.lengthOfSide);
+      } else {
+        for (var key in this.clientSideGame) {
+          if (key !== 'setup' && key !== 'played') {
+            delete this.clientSideGame[key];
+          }
+        }
+        this.setupGame(gameData, gameData.board.lengthOfSide);
       }
 
       var handleHeroTurn = gameData.handleHeroTurn;
@@ -79,7 +86,7 @@ var Game = Backbone.Model.extend({
   },
 
   initialize: function() {
-    
+    console.log(this.clientSideGame)
   },
   
   gameSet: function(gameData) {
@@ -102,7 +109,6 @@ var Game = Backbone.Model.extend({
       heroObject.battleId = heroObject.id;
       if (heroObject.battleId === 0 || heroObject.battleId === 'YOU') {
         heroObject.name = 'YOUR HERO';
-        console.log(heroObject);
       }
 
       var hero = new Hero(heroObject);
@@ -114,7 +120,6 @@ var Game = Backbone.Model.extend({
       heroObject.battleId = heroObject.id;
       if (heroObject.battleId === 0) {
         heroObject.name = 'YOUR HERO';
-        console.log(heroObject);
       }
 
       var hero = new Hero(heroObject);
