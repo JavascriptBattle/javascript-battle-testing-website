@@ -1,7 +1,9 @@
 
 var Game = Backbone.Model.extend({
 
-  clientSideGame: {},
+  clientSideGame: {
+    played: false
+  },
 
   helpers: {},
 
@@ -46,28 +48,30 @@ var Game = Backbone.Model.extend({
       move += "return move(arguments[0], arguments[1]);";
 
       var helpers = this.helpers;
+      var gameData = owl.deepCopy(this.clientSideGame['setup']);
 
-      var gameData = this.clientSideGame[0];
-      this.setupGame(gameData, gameData.board.lengthOfSide);
+      if (!this.clientSideGame.played) {
+        this.setupGame(gameData, gameData.board.lengthOfSide);
+      }
+
       var handleHeroTurn = gameData.handleHeroTurn;
       var turnKeeper = 0;
-      while (turnKeeper < 1300) {
+
+      while (gameData.hasEnded === false || turnKeeper < 1010) {
         if (gameData.heroTurnIndex === 0) {
           var usersFunction = new Function(move);
-          var usersMove = usersFunction(gameData, helpers);
+          var usersMove = (usersFunction(gameData, helpers));
           handleHeroTurn.call(gameData, usersMove);
-          var newGameData = JSON.parse(JSON.stringify(gameData));
-          this.clientSideGame[turnKeeper] = newGameData;
+          this.clientSideGame[turnKeeper] = owl.deepCopy(gameData);
         } else {
           var choices = ['North', 'South', 'East', 'West'];
-          handleHeroTurn.call(gameData, choices[Math.floor(Math.random()*4)]); 
-          var newGameData = JSON.parse(JSON.stringify(gameData));
-          this.clientSideGame[turnKeeper] = newGameData;
+          handleHeroTurn.call(gameData, (choices[Math.floor(Math.random()*4)])); 
+          this.clientSideGame[turnKeeper] = owl.deepCopy(gameData);
         }
         turnKeeper++;
       }
-      var copiedGame = JSON.parse(JSON.stringify(this.clientSideGame[0]));
-      this.gameSet(copiedGame);
+      this.clientSideGame.played = true;
+      this.gameSet(this.clientSideGame[0]);
       this.trigger('finished');
     }
   },
@@ -94,29 +98,28 @@ var Game = Backbone.Model.extend({
     _.each(gameData.teams[0], function(heroObject, key, col){
       heroObject.gameTurn = gameData.turn;
       heroObject.battleId = heroObject.id;
-      if (heroObject.id === 0) {
-        heroObject.name = 'YOUR HERO'
-      }
-      delete heroObject.id;
+      // delete heroObject.id;
+      // if (heroObject.battleId === 0) {
+      //   heroObject.name = 'YOUR HERO'
+      // }
 
       var hero = new Hero(heroObject);
       teamYellow.add(hero);
     });
     //add team blue hero Models to team collection
-    _.each(gameData.teams[1], function(heroObject){
+    _.each(gameData.teams[1], function(heroObject, key, col){
       heroObject.gameTurn = gameData.turn;
       heroObject.battleId = heroObject.id;
-      if (heroObject.id === 0) {
-        heroObject.name = 'YOUR HERO'
-      }
-      delete heroObject.id;
+      // delete heroObject.id;
+      // if (heroObject.battleId === 0) {
+      //   heroObject.name = 'YOUR HERO'
+      // }
 
       var hero = new Hero(heroObject);
       teamBlue.add(hero);
     });
 
     
-
     _.each(_.flatten(gameData.board.tiles), function(tileObject, key, list) {
       //The id from our game model was overwriting 
       tileObject.battleId = tileObject.id;
@@ -126,14 +129,12 @@ var Game = Backbone.Model.extend({
       board.add(tile);
 
     }.bind(this));
-
     this.set('teamYellow', teamYellow);
     this.set('teamBlue', teamBlue);
     this.set('board', board);
   },
 
   updateTurn: function(turn) {
-    var copiedGame = JSON.parse(JSON.stringify(this.clientSideGame[turn]));
-    this.gameSet(copiedGame);
+    this.gameSet(this.clientSideGame[turn]);
   }
 });

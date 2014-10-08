@@ -140,6 +140,7 @@ var GameView = Backbone.View.extend({
 
       //Updates the model
       this.model.updateTurn(newTurn);
+      console.log(this.model.get('board'));
 
       //Send slider to new location
       this.sendSliderToTurn(newTurn);
@@ -197,7 +198,7 @@ var GameView = Backbone.View.extend({
       currTurn++;
 
       // Hacky solution to fix the rendering bug
-      // Backbone could not keep up with rendering all these model changes
+      // Backbone could not keep up with rendering all these model changes  
       var that = this;
       window.setTimeout(function(){
         that.autoPlayGame();
