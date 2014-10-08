@@ -57,7 +57,7 @@ var Game = Backbone.Model.extend({
       var handleHeroTurn = gameData.handleHeroTurn;
       var turnKeeper = 0;
 
-      while (turnKeeper < 1010) {
+      while (gameData.hasEnded === false || turnKeeper < 1010) {
         if (gameData.heroTurnIndex === 0) {
           var usersFunction = new Function(move);
           var usersMove = (usersFunction(gameData, helpers));
@@ -124,6 +124,7 @@ var Game = Backbone.Model.extend({
     _.each(_.flatten(gameData.board.tiles), function(tileObject, key, list) {
       //The id from our game model was overwriting 
       tileObject.battleId = tileObject.id;
+      delete tileObject.id;
       tileObject.gameTurn = this.get('turn');
       var tile = new BoardTile(tileObject);
       board.add(tile);
