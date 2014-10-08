@@ -7,18 +7,6 @@ var Game = Backbone.Model.extend({
 
   helpers: {},
 
-  deepCopy: function(copyFrom, copyTo) {
-    for (var key in copyFrom) {
-      if (typeof copyFrom[key] === 'function') {
-        copyTo[key] = copyFrom[key];
-      } else if (typeof copyFrom[key] === 'object' && copyFrom[key].constructor) {
-        for (var otherKey in copyFrom[key].constructor.prototype) {
-          copyTo[key][otherKey] = copyFrom[key].constructor.prototype[otherKey];
-        }
-      }
-    }
-  },
-
   setupGame: function(game, boardSize) {
     var randomNumber = function(max) {
       return Math.floor(Math.random()*max);
@@ -60,10 +48,8 @@ var Game = Backbone.Model.extend({
       move += "return move(arguments[0], arguments[1]);";
 
       var helpers = this.helpers;
-      if (window.localStorage.length > 1) {
-        window.localStorage.
-      }
-      var gameData = window.localStorage.getItem('setup');
+      var gameData = owl.deepCopy(this.clientSideGame['setup']);
+
       if (!this.clientSideGame.played) {
         this.setupGame(gameData, gameData.board.lengthOfSide);
       }
@@ -76,11 +62,11 @@ var Game = Backbone.Model.extend({
           var usersFunction = new Function(move);
           var usersMove = (usersFunction(gameData, helpers));
           handleHeroTurn.call(gameData, usersMove);
-          this.clientSideGame[turnKeeper] = Object.freeze(gameData);
+          this.clientSideGame[turnKeeper] = owl.deepCopy(gameData);
         } else {
           var choices = ['North', 'South', 'East', 'West'];
           handleHeroTurn.call(gameData, (choices[Math.floor(Math.random()*4)])); 
-          this.clientSideGame[turnKeeper] = Object.freeze(gameData);
+          this.clientSideGame[turnKeeper] = owl.deepCopy(gameData);
         }
         turnKeeper++;
       }

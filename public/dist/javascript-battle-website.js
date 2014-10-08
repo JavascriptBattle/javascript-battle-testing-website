@@ -85,18 +85,6 @@ var Game = Backbone.Model.extend({
 
   helpers: {},
 
-  deepCopy: function(copyFrom, copyTo) {
-    for (var key in copyFrom) {
-      if (typeof copyFrom[key] === 'function') {
-        copyTo[key] = copyFrom[key];
-      } else if (typeof copyFrom[key] === 'object' && copyFrom[key].constructor) {
-        for (var otherKey in copyFrom[key].constructor.prototype) {
-          copyTo[key][otherKey] = copyFrom[key].constructor.prototype[otherKey];
-        }
-      }
-    }
-  },
-
   setupGame: function(game, boardSize) {
     var randomNumber = function(max) {
       return Math.floor(Math.random()*max);
@@ -138,8 +126,8 @@ var Game = Backbone.Model.extend({
       move += "return move(arguments[0], arguments[1]);";
 
       var helpers = this.helpers;
-      var gameData = window.localStorage.getItem('setup');
-      console.log(JSON.stringify(gameData));
+      var gameData = deepCopy(this.clientSideGame['setup']);
+      console.log(gameData);
       if (!this.clientSideGame.played) {
         this.setupGame(gameData, gameData.board.lengthOfSide);
       }
