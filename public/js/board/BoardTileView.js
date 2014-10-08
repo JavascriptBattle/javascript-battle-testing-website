@@ -3,7 +3,7 @@ var BoardTileView = Backbone.View.extend({
   className: 'battle-tile',
   initialize: function() {
     if (this.model === undefined) {
-      console.log(undefined);
+      console.log(undefined, this);
     }
     this.render();
     this.model.on('change', this.render());
@@ -28,7 +28,7 @@ var BoardTileView = Backbone.View.extend({
         };
       if (type === 'Hero') {
         var name = this.model.get('name');
-        var heroId = this.model.get('battleId');
+        var heroId = this.model.get('battleId') || 'YOU';
         var HP = this.model.get('health');
         var gameTurn = this.model.get('gameTurn');
         var lastActiveTurn = this.model.get('lastActiveTurn');
