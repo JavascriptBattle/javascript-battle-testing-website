@@ -43,9 +43,9 @@ var Game = Backbone.Model.extend({
       this.waiting = true;
 
       var move = this.get('heroCode');
-      var start = move.indexOf('module.exports = move');
-      move = move.slice(0, move.length - 26);
-      move += "return move(arguments[0], arguments[1]);";
+      var end = move.indexOf('module.exports = move;', move.length - 25);
+      move = move.slice(0, end);
+      move += "\n return move(arguments[0], arguments[1]);";
 
       var helpers = this.helpers;
       var gameData = owl.deepCopy(this.clientSideGame['setup']);
@@ -66,6 +66,7 @@ var Game = Backbone.Model.extend({
 
       while (gameData.ended === false || turnKeeper < 1010) {
         if (gameData.heroTurnIndex === 0) {
+          console.log(move)
           var usersFunction = new Function(move);
           var usersMove = (usersFunction(gameData, helpers));
           handleHeroTurn.call(gameData, usersMove);
@@ -86,7 +87,7 @@ var Game = Backbone.Model.extend({
   },
 
   initialize: function() {
-    console.log(this.clientSideGame)
+
   },
   
   gameSet: function(gameData) {
@@ -109,6 +110,9 @@ var Game = Backbone.Model.extend({
       heroObject.battleId = heroObject.id;
       if (heroObject.battleId === 0 || heroObject.battleId === 'YOU') {
         heroObject.name = 'YOUR HERO';
+      }
+      if (gameData.heroTurnIndex === 0) {
+        console.log(gameData);
       }
 
       var hero = new Hero(heroObject);
