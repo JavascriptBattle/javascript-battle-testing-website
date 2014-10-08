@@ -66,7 +66,6 @@ var Game = Backbone.Model.extend({
 
       while (gameData.ended === false || turnKeeper < 1010) {
         if (gameData.heroTurnIndex === 0) {
-          console.log(move)
           var usersFunction = new Function(move);
           var usersMove = (usersFunction(gameData, helpers));
           handleHeroTurn.call(gameData, usersMove);
@@ -111,9 +110,6 @@ var Game = Backbone.Model.extend({
       if (heroObject.battleId === 0 || heroObject.battleId === 'YOU') {
         heroObject.name = 'YOUR HERO';
       }
-      if (gameData.heroTurnIndex === 0) {
-        console.log(gameData);
-      }
 
       var hero = new Hero(heroObject);
       teamYellow.add(hero);
@@ -143,6 +139,9 @@ var Game = Backbone.Model.extend({
     this.set('teamYellow', teamYellow);
     this.set('teamBlue', teamBlue);
     this.set('board', board);
+    if (gameData.heroTurnIndex === 1) {
+      console.log('Your hero ' + gameData.moveMessage.slice(7));
+    }
   },
 
   updateTurn: function(turn) {
