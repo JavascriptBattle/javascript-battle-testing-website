@@ -56,6 +56,7 @@ var RulesView = Backbone.View.extend({
               '</ul>' +
             '</ul>' +
             '* Your code will be run in your browser and not on our server, so it would be easy to cheat here. Just know those tricks won\'t work in the real game!' +
+            '<br>* Also note that the heroes in the simulation will be choosing directions randomly, so they will not be as smart as your opponents in the real game. The ability to choose enemy AI types in the simulation is coming soon!' +
           '</div>' +
         '</div>' +
         '<br>' +
