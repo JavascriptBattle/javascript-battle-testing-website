@@ -515,7 +515,7 @@ var Game = Backbone.Model.extend({
         '<div class="row">' +
           '<div class="col-lg-12 text-center">' +
             '<h2>Instructions</h2>' +
-            '<h2 class="glyphicon glyphicon-star"></h2>' +
+            '<hr class="star-primary">' +
           '</div>' +
         '</div>' +
         '<div class="row">' +
