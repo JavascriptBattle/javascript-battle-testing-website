@@ -13,16 +13,63 @@ var RulesView = Backbone.View.extend({
   simulate: function() {
     this.waiting = true;
     this.render();
+    console.log('Starting simulation...');
     var that = this;
     window.setTimeout(function() {
       that.model.runGame();
       that.waiting = false;
       that.render();
-    }, 500);
+    }, 300);
   },
 
   render: function(){
-    var html = new EJS({url: '/ejs_templates/rules'}).render(this.model);
+    var html = '' +
+      '<div class="container">' +
+        '<div class="row">' +
+          '<div class="col-lg-12 text-center">' +
+            '<h2>Instructions</h2>' +
+            '<hr class="star-primary">' +
+          '</div>' +
+        '</div>' +
+        '<div class="row">' +
+          '<div class="col-lg-8 col-lg-offset-2 text-center info-header">' +
+            'Want to see how youre hero might perform in tomorrow\'s battle? Follow the instructions below to test your hero code right here, right now.' +
+          '</div>' +
+        '</div>' +
+        '<div class="row nav-buttons">' +
+          '<div class="col-lg-8 btn-group btn-group-justified">' +
+            '<div class="active rules btn-group">' +
+              '<button type="button" class="btn btn-secondary" disabled>Instructions</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="row">' +
+          '<div class="col-lg-8 col-lg-offset-2">' +
+            '<ul class="info-list">' +
+              '<ul class="rules-list">' +
+                '<li>Upload your hero.js file below.</li>' +
+                '<li>Your hero\'s code will be run through a simulation game in your browser.*</li>' +
+                '<li>When the simulation is complete, you can watch the game below.</li>' +
+                '<li>After viewing your simulated battle, feel free to make any changes you need and repeat these steps until you are satisfied with you hero\'s performance.</li>' +
+                '<li>Good luck in tomorrow\'s battle!</li>' +
+              '</ul>' +
+            '</ul>' +
+            '* Your code will be run in your browser and not on our server, so it would be easy to cheat here. Just know those tricks won\'t work in the real game!' +
+          '</div>' +
+        '</div>' +
+        '<br>' +
+        '<br>' +
+        '<div class="centered">' +
+          '<input type="file" id="hero" title="Upload Hero.js here">' +
+        '</div>' +
+        '<br>' +
+        '<div class="centered simulate">' +
+        '</div>' +
+        '<script>' +
+          '$("input[type=file]").bootstrapFileInput()' +
+        '</script>' +
+      '</div>'
+
     var simulationHtml = '<button class="btn btn-success btn-lg">Simulate Game</button>';
     var waitingHtml = '<button class="btn btn-danger btn-lg">Waiting for Simulation to Finish</button>';
 
@@ -42,6 +89,7 @@ var RulesView = Backbone.View.extend({
     var that = this;
     reader.onload = function(e) {
       that.model.set('heroCode', reader.result);
+      console.log('Hero code has been saved.\nNo need to re-upload, unless you have changed your file.');
     };
     reader.readAsText(heroCode);
 

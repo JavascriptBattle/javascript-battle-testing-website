@@ -53,6 +53,7 @@ var Game = Backbone.Model.extend({
       if (!this.clientSideGame.played) {
         this.setupGame(gameData, gameData.board.lengthOfSide);
       } else {
+        console.clear();
         for (var key in this.clientSideGame) {
           if (key !== 'setup' && key !== 'played') {
             delete this.clientSideGame[key];
@@ -66,7 +67,6 @@ var Game = Backbone.Model.extend({
 
       while (gameData.ended === false || turnKeeper < 1010) {
         if (gameData.heroTurnIndex === 0) {
-          console.log(move)
           var usersFunction = new Function(move);
           var usersMove = (usersFunction(gameData, helpers));
           handleHeroTurn.call(gameData, usersMove);
@@ -80,7 +80,6 @@ var Game = Backbone.Model.extend({
         turnKeeper++;
       }
       this.clientSideGame.played = true;
-      this.gameSet(this.clientSideGame[0]);
       this.set('maxTurn', max);
       this.trigger('finished');
     }
@@ -111,9 +110,6 @@ var Game = Backbone.Model.extend({
       if (heroObject.battleId === 0 || heroObject.battleId === 'YOU') {
         heroObject.name = 'YOUR HERO';
       }
-      if (gameData.heroTurnIndex === 0) {
-        console.log(gameData);
-      }
 
       var hero = new Hero(heroObject);
       teamYellow.add(hero);
@@ -143,6 +139,12 @@ var Game = Backbone.Model.extend({
     this.set('teamYellow', teamYellow);
     this.set('teamBlue', teamBlue);
     this.set('board', board);
+    if (gameData.heroTurnIndex === 1) {
+      console.log('**********');
+      console.log('Turn number: ', gameData.turn);
+      console.log('Your hero ' + gameData.moveMessage.slice(7));
+      console.log('**********');
+    }
   },
 
   updateTurn: function(turn) {
