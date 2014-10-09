@@ -28,7 +28,7 @@ var RulesView = Backbone.View.extend({
         '<div class="row">' +
           '<div class="col-lg-12 text-center">' +
             '<h2>Instructions</h2>' +
-            '<hr class="star-primary">' +
+            '<h2 class="glyphicon glyphicon-star"></h2>' +
           '</div>' +
         '</div>' +
         '<div class="row">' +
@@ -49,12 +49,14 @@ var RulesView = Backbone.View.extend({
               '<ul class="rules-list">' +
                 '<li>Upload your hero.js file below.</li>' +
                 '<li>Your hero\'s code will be run through a simulation game in your browser.*</li>' +
+                '<li>Open up your console to see what move your hero made on his/her turn.</li>' +
                 '<li>When the simulation is complete, you can watch the game below.</li>' +
                 '<li>After viewing your simulated battle, feel free to make any changes you need and repeat these steps until you are satisfied with you hero\'s performance.</li>' +
                 '<li>Good luck in tomorrow\'s battle!</li>' +
               '</ul>' +
             '</ul>' +
             '* Your code will be run in your browser and not on our server, so it would be easy to cheat here. Just know those tricks won\'t work in the real game!' +
+            '<br>* Also note that the heroes in the simulation will be choosing directions randomly, so they will not be as smart as your opponents in the real game. The ability to choose enemy AI types in the simulation is coming soon!' +
           '</div>' +
         '</div>' +
         '<br>' +
