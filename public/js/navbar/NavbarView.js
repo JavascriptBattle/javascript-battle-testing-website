@@ -16,7 +16,7 @@ var NavbarView = Backbone.View.extend({
           '<span class="icon-bar"></span>' +
           '<span class="icon-bar"></span>' +
         '</button>' + 
-        '<a class="navbar-brand" href="#page-top">Javascript Battle Code Tester</a>' +
+        '<a class="navbar-brand" href="#page-top">JS Battle Code Tester</a>' +
       '</div>' +
     
       '<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">' +

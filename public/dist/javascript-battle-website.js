@@ -149,8 +149,8 @@ var Game = Backbone.Model.extend({
           var usersMove = (usersFunction(gameData, helpers));
           handleHeroTurn.call(gameData, usersMove);
           this.clientSideGame[turnKeeper] = JSON.parse(JSON.stringify(gameData));
-          console.log('**********');
-          console.log('Turn number: ', gameData.turn);
+          console.log('----------');
+          console.log('Turn number: ', (gameData.turn - 1));
           console.log('Your hero ' + gameData.moveMessage.slice(7));
           console.log('**********');
         } else {
@@ -465,7 +465,7 @@ var Game = Backbone.Model.extend({
           '<span class="icon-bar"></span>' +
           '<span class="icon-bar"></span>' +
         '</button>' + 
-        '<a class="navbar-brand" href="#page-top">Javascript Battle Code Tester</a>' +
+        '<a class="navbar-brand" href="#page-top">JS Battle Code Tester</a>' +
       '</div>' +
     
       '<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">' +
@@ -536,6 +536,7 @@ var Game = Backbone.Model.extend({
               '<ul class="rules-list">' +
                 '<li>Upload your hero.js file below.</li>' +
                 '<li>Your hero\'s code will be run through a simulation game in your browser.*</li>' +
+                '<li>Open up your console to see what move your hero made on his/her turn.</li>' +
                 '<li>When the simulation is complete, you can watch the game below.</li>' +
                 '<li>After viewing your simulated battle, feel free to make any changes you need and repeat these steps until you are satisfied with you hero\'s performance.</li>' +
                 '<li>Good luck in tomorrow\'s battle!</li>' +
