@@ -66,11 +66,15 @@ var Game = Backbone.Model.extend({
       var turnKeeper = 0;
 
       while (gameData.ended === false || turnKeeper < 1010) {
-        if (gameData.heroTurnIndex === 0) {
+        if (gameData.activeHero.id === 0) {
           var usersFunction = new Function(move);
           var usersMove = (usersFunction(gameData, helpers));
           handleHeroTurn.call(gameData, usersMove);
           this.clientSideGame[turnKeeper] = JSON.parse(JSON.stringify(gameData));
+          console.log('**********');
+          console.log('Turn number: ', gameData.turn);
+          console.log('Your hero ' + gameData.moveMessage.slice(7));
+          console.log('**********');
         } else {
           var choices = ['North', 'South', 'East', 'West'];
           handleHeroTurn.call(gameData, (choices[Math.floor(Math.random()*4)])); 
@@ -139,12 +143,6 @@ var Game = Backbone.Model.extend({
     this.set('teamYellow', teamYellow);
     this.set('teamBlue', teamBlue);
     this.set('board', board);
-    if (gameData.activeHero.id === 0) {
-      console.log('**********');
-      console.log('Turn number: ', gameData.turn);
-      console.log('Your hero ' + gameData.moveMessage.slice(7));
-      console.log('**********');
-    }
   },
 
   updateTurn: function(turn) {
