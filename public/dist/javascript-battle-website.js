@@ -114,18 +114,19 @@ var Game = Backbone.Model.extend({
   },
 
   runGame: function() {
-    if (this.get('heroCode') === undefined) {
+    console.log(this.get('hero'));
+    if (this.get('hero') === undefined) {
       alert('Please upload your Hero.js file first.');
       return 'Error';
     } else {
       this.waiting = true;
 
-      var move = this.get('heroCode');
+      var move = this.get('hero');
       var end = move.indexOf('module.exports = move;', move.length - 25);
       move = move.slice(0, end);
       move += "\n return move(arguments[0], arguments[1]);";
 
-      var helpers = this.helpers;
+      var helpers = eval(this.get('helpers')) || this.helpers;
       var gameData = owl.deepCopy(this.clientSideGame['setup']);
 
       if (!this.clientSideGame.played) {
@@ -494,7 +495,8 @@ var Game = Backbone.Model.extend({
 
   events: {
     'click .simulate': 'simulate',
-    'change #hero': 'getHeroCode'
+    'change #hero': 'getCode',
+    'change #helpers': 'getCode'
   },
 
   simulate: function() {
@@ -552,6 +554,10 @@ var Game = Backbone.Model.extend({
           '<input type="file" id="hero" title="Upload Hero.js here">' +
         '</div>' +
         '<br>' +
+        '<div class="centered">' +
+          '<input type="file" id="helpers" title="Upload Helpers.js here">' +
+        '</div>' +
+        '<br>' +
         '<div class="centered simulate">' +
         '</div>' +
         '<script>' +
@@ -572,15 +578,15 @@ var Game = Backbone.Model.extend({
     }
   },
 
-  getHeroCode: function() {
+  getCode: function(heroOrHelper) {
     var reader = new FileReader();
-    var heroCode = this.$el.find('#hero')[0].files[0];
+    var code = heroOrHelper.currentTarget.files[0];
     var that = this;
     reader.onload = function(e) {
-      that.model.set('heroCode', reader.result);
-      console.log('Hero code has been saved.\nNo need to re-upload, unless you have changed your file.');
+      that.model.set(heroOrHelper.currentTarget.id, reader.result);
+      console.log(heroOrHelper.currentTarget.id + ' code has been saved.\nNo need to re-upload, unless you have changed your file.');
     };
-    reader.readAsText(heroCode);
+    reader.readAsText(code);
 
   }
 
