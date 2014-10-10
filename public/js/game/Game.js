@@ -36,19 +36,18 @@ var Game = Backbone.Model.extend({
   },
 
   runGame: function() {
-    console.log(this.get('hero'));
-    if (this.get('hero') === undefined) {
+    if (this.get('heroCode') === undefined) {
       alert('Please upload your Hero.js file first.');
       return 'Error';
     } else {
       this.waiting = true;
 
-      var move = this.get('hero');
+      var move = this.get('heroCode');
       var end = move.indexOf('module.exports = move;', move.length - 25);
       move = move.slice(0, end);
       move += "\n return move(arguments[0], arguments[1]);";
 
-      var helpers = eval(this.get('helpers')) || this.helpers;
+      var helpers = this.helpers;
       var gameData = owl.deepCopy(this.clientSideGame['setup']);
 
       if (!this.clientSideGame.played) {
