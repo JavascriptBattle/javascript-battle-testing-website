@@ -49,7 +49,7 @@ Hero.prototype.takeDamage = function(amount) {
   this.health -= amount;
   if (this.health <= 0) {
     this.dead = true;
-    
+
     // Only return the damage actually needed
     // to kill this hero
     return amount + this.health;
@@ -114,6 +114,116 @@ Hero.prototype.getCode = function() {
     idStr = '0' + idStr;
   }
   return 'H' + idStr;
+};
+
+Hero.prototype.move = function(gameData, helpers) {
+    // Select a random brain for this hero
+    var brains = Object.keys(Hero.brains);
+    this.move = Hero.brains[brains[ brains.length * Math.random() << 0 ]];
+    return this.move(gameData, helpers);
+};
+
+Hero.brains = {
+  Aggressor: function(gameData, helpers) {
+    // Here, we ask if your hero's health is below 30
+    if (gameData.activeHero().health <= 30){
+      // If it is, head towards the nearest health well
+      return helpers.findNearestHealthWell(gameData);
+    } else {
+      // Otherwise, go attack someone...anyone.
+      return helpers.findNearestEnemy(gameData);
+    }
+  },
+  HealthNut: function(gameData, helpers) {
+    // Here, we ask if your hero's health is below 75
+    if (gameData.activeHero().health <= 75){
+      // If it is, head towards the nearest health well
+      return helpers.findNearestHealthWell(gameData);
+    } else {
+      // Otherwise, go mine some diamonds!!!
+      return helpers.findNearestDiamondMine(gameData);
+    }
+  },
+  BlindMan: function(gameData, helpers) {
+    var myHero = gameData.activeHero;
+    var choices = ['North', 'South', 'East', 'West'];
+    return choices[Math.floor(Math.random()*4)];
+  },
+  Priest: function(gameData, helpers) {
+    var myHero = gameData.activeHero;
+    if (myHero.health < 60) {
+      return helpers.findNearestHealthWell(gameData);
+    } else {
+      return helpers.findNearestTeamMember(gameData);
+    }
+  },
+  UnwiseAssassin: function(gameData, helpers) {
+    var myHero = gameData.activeHero;
+    if (myHero.health < 30) {
+      return helpers.findNearestHealthWell(gameData);
+    } else {
+      return helpers.findNearestEnemy(gameData);
+    }
+  },
+  CarefulAssassin: function(gameData, helpers) {
+    var myHero = gameData.activeHero;
+    if (myHero.health < 50) {
+      return helpers.findNearestHealthWell(gameData);
+    } else {
+      return helpers.findNearestWeakerEnemy(gameData);
+    }
+  },
+  SafeDiamondMiner: function(gameData, helpers) {
+    var myHero = gameData.activeHero;
+
+    //Get stats on the nearest health well
+    var healthWellStats = helpers.findNearestObjectDirectionAndDistance(gameData.board, myHero, function(boardTile) {
+      if (boardTile.type === 'HealthWell') {
+        return true;
+      }
+    });
+    var distanceToHealthWell = healthWellStats.distance;
+    var directionToHealthWell = healthWellStats.direction;
+
+
+    if (myHero.health < 40) {
+      //Heal no matter what if low health
+      return directionToHealthWell;
+    } else if (myHero.health < 100 && distanceToHealthWell === 1) {
+      //Heal if you aren't full health and are close to a health well already
+      return directionToHealthWell;
+    } else {
+      //If healthy, go capture a diamond mine!
+      return helpers.findNearestNonTeamDiamondMine(gameData);
+    }
+  },
+  SelfishDiamondMiner: function(gameData, helpers) {
+    var myHero = gameData.activeHero;
+
+    //Get stats on the nearest health well
+    var healthWellStats = helpers.findNearestObjectDirectionAndDistance(gameData.board, myHero, function(boardTile) {
+      if (boardTile.type === 'HealthWell') {
+        return true;
+      }
+    });
+
+    var distanceToHealthWell = healthWellStats.distance;
+    var directionToHealthWell = healthWellStats.direction;
+
+    if (myHero.health < 40) {
+      Heal no matter what if low health
+      return directionToHealthWell;
+    } else if (myHero.health < 100 && distanceToHealthWell === 1) {
+      //Heal if you aren't full health and are close to a health well already
+      return directionToHealthWell;
+    } else {
+      //If healthy, go capture a diamond mine!
+      return helpers.findNearestUnownedDiamondMine(gameData);
+    }
+  },
+  Coward: function(gameData, helpers) {
+    return helpers.findNearestHealthWell(gameData);
+  }
 };
 
 module.exports = Hero;
