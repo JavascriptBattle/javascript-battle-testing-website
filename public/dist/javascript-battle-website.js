@@ -39,7 +39,7 @@ var Board = Backbone.Collection.extend({
           this.$('.sprite').addClass('current-turn');
         }
         html = '<img src="' + assets[subType] + '" id="H' + heroId +'" class="sprite">';
-        
+
         html += '<span class="indicator ' + colors[this.model.get('team')] +'">' + heroId + '</span>';
         html += '<span class="lifebar"><span class="life-capacity" style="height:' + HP + '%"></span></span>';
         this.$el.addClass('current-user-' + name);
@@ -47,7 +47,7 @@ var Board = Backbone.Collection.extend({
         var owner = this.model.get('owner');
         if (owner) {
           html += '<span class="indicator ' + colors[owner.team] +'">' + owner.id + '</span>';
-        } 
+        }
       }
       this.$el.html(html);
     }
@@ -68,7 +68,7 @@ var Board = Backbone.Collection.extend({
       var $tr = $('<div class="tile-row">');
     	for(var j = 0; j < boardLength; j++){
         var tileView = new BoardTileView({
-    			model: this.collection.at(i * boardLength + j)          
+    			model: this.collection.at(i * boardLength + j)
     		});
     	  $tr.append(tileView.$el);
     	}
@@ -155,7 +155,7 @@ var Game = Backbone.Model.extend({
           console.log('**********');
         } else {
           var choices = ['North', 'South', 'East', 'West'];
-          handleHeroTurn.call(gameData, (choices[Math.floor(Math.random()*4)])); 
+          handleHeroTurn.call(gameData, (choices[Math.floor(Math.random()*4)]));
           this.clientSideGame[turnKeeper] = JSON.parse(JSON.stringify(gameData));
         }
         var max = turnKeeper;
@@ -170,7 +170,7 @@ var Game = Backbone.Model.extend({
   initialize: function() {
 
   },
-  
+
   gameSet: function(gameData) {
     this.set('turn', gameData.turn);
     this.set('maxTurn', gameData.maxTurn);
@@ -208,7 +208,7 @@ var Game = Backbone.Model.extend({
       teamBlue.add(hero);
     });
 
-    
+
     _.each(_.flatten(gameData.board.tiles), function(tileObject, key, list) {
       //The id from our game model was overwriting
       tileObject.battleId = tileObject.id || tileObject.battleId;
@@ -236,7 +236,7 @@ var Game = Backbone.Model.extend({
       console.log('Simulation finished.');
       this.paused = true;
       this.playInProgress = false;
-      this.sliderInitialized = false; 
+      this.sliderInitialized = false;
       this.$el.html('<div class="messages"></div>' + '<div class="row map"></div>');
       this.$el.append('<input class="row slider" />' +
                       '</div>');
@@ -419,23 +419,23 @@ var Game = Backbone.Model.extend({
 
     //If the game is not yet over, go to next turn
     if (currTurn < maxTurn && this.paused === false) {
-      
+
       this.model.updateTurn(currTurn);
       this.sendSliderToTurn(currTurn);
       this.render();
       currTurn++;
 
       // Hacky solution to fix the rendering bug
-      // Backbone could not keep up with rendering all these model changes  
+      // Backbone could not keep up with rendering all these model changes
       var that = this;
       window.setTimeout(function(){
         that.autoPlayGame();
       }, 100);
 
-    }  
+    }
   },
   checkWinner: function() {
-    var winner = this.model.get('winningTeam'); 
+    var winner = this.model.get('winningTeam');
     var message = $('.winner-msg');
     if (winner === 0) {
       message.text('Yellow Team Wins!');
@@ -459,15 +459,15 @@ var Game = Backbone.Model.extend({
     html = '' +
     '<div class="container">' +
       '<div class="navbar-header page-scroll">' +
-        '<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">' + 
+        '<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">' +
           '<span class="sr-only">Toggle navigation</span>' +
           '<span class="icon-bar"></span>' +
           '<span class="icon-bar"></span>' +
           '<span class="icon-bar"></span>' +
-        '</button>' + 
+        '</button>' +
         '<a class="navbar-brand" href="#page-top">JS Battle Code Tester</a>' +
       '</div>' +
-    
+
       '<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">' +
         '<ul class="nav navbar-nav navbar-right">' +
           '<li class="hidden">' +
@@ -482,11 +482,11 @@ var Game = Backbone.Model.extend({
         '</ul>' +
       '</div>' +
     '</div>'
-    
+
     this.$el.html(html);
   }
 });;var RulesView = Backbone.View.extend({
-  
+
   initialize: function(){
     this.waiting = false;
     this.render();
@@ -549,7 +549,10 @@ var Game = Backbone.Model.extend({
         '<br>' +
         '<br>' +
         '<div class="centered">' +
-          '<input type="file" id="hero" title="Upload Hero.js here">' +
+          '<input type="file" id="hero" title="Upload hero.js here">' +
+        '</div>' +
+        '<div class="centered">' +
+          '<input type="file" id="helpers" title="(Optional) Upload helpers.js here">' +
         '</div>' +
         '<br>' +
         '<div class="centered simulate">' +
@@ -582,6 +585,18 @@ var Game = Backbone.Model.extend({
     };
     reader.readAsText(heroCode);
 
+  },
+
+  getHelpersCode: function() {
+    var reader = new FileReader();
+    var helpersCode = this.$el.find('#helpers')[0].files[0];
+    var that = this;
+    reader.onload = function(e) {
+      that.model.set('helpersCode', reader.result);
+      console.log('Helpers code has been saved.\nNo need to re-upload, unless you have changed your file.');
+    };
+    reader.readAsText(helpersCode);
+
   }
 
 
@@ -591,7 +606,7 @@ var Game = Backbone.Model.extend({
  *
  * Licensed under the MIT license.
  * http://www.opensource.org/licenses/mit-license.php
- * 
+ *
  * Copyright 2013, Codrops
  * http://www.codrops.com
  */
@@ -639,7 +654,7 @@ var cbpAnimatedHeader = (function() {
 ;/*!
  * classie - class helper functions
  * from bonzo https://github.com/ded/bonzo
- * 
+ *
  * classie.has( elem, 'my-class' ) -> true/false
  * classie.add( elem, 'my-new-class' )
  * classie.remove( elem, 'my-unwanted-class' )
@@ -772,7 +787,7 @@ $('.navbar-collapse ul li a').click(function() {
     } else{
       health =  health + 'HP';
     }
-    var heroName = '<div class="hero-header h-i' + heroId + '">(id:' + heroId + ') ' + 
+    var heroName = '<div class="hero-header h-i' + heroId + '">(id:' + heroId + ') ' +
         '<span>' + name + '</span>' + ' </div>'
     var health = '<div class="health-info h-i' + heroId + '">' + health + '</div>';
     this.$el.append(heroName + health);

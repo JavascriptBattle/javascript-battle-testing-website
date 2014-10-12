@@ -1,5 +1,5 @@
 var RulesView = Backbone.View.extend({
-  
+
   initialize: function(){
     this.waiting = false;
     this.render();
@@ -62,7 +62,10 @@ var RulesView = Backbone.View.extend({
         '<br>' +
         '<br>' +
         '<div class="centered">' +
-          '<input type="file" id="hero" title="Upload Hero.js here">' +
+          '<input type="file" id="hero" title="Upload hero.js here">' +
+        '</div>' +
+        '<div class="centered">' +
+          '<input type="file" id="helpers" title="(Optional) Upload helpers.js here">' +
         '</div>' +
         '<br>' +
         '<div class="centered simulate">' +
@@ -94,6 +97,18 @@ var RulesView = Backbone.View.extend({
       console.log('Hero code has been saved.\nNo need to re-upload, unless you have changed your file.');
     };
     reader.readAsText(heroCode);
+
+  },
+
+  getHelpersCode: function() {
+    var reader = new FileReader();
+    var helpersCode = this.$el.find('#helpers')[0].files[0];
+    var that = this;
+    reader.onload = function(e) {
+      that.model.set('helpersCode', reader.result);
+      console.log('Helpers code has been saved.\nNo need to re-upload, unless you have changed your file.');
+    };
+    reader.readAsText(helpersCode);
 
   }
 
