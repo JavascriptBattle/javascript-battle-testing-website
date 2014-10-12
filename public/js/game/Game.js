@@ -76,7 +76,7 @@ var Game = Backbone.Model.extend({
           console.log('Your hero ' + gameData.moveMessage.slice(7));
           console.log('**********');
         } else {
-          var botsFunction = new Function(gameData.activeHero.move)
+          var botsFunction = gameData.activeHero.move;
           var botsMove = botsFunction(gameData, helpers);
           handleHeroTurn.call(gameData, botsMove);
           this.clientSideGame[turnKeeper] = JSON.parse(JSON.stringify(gameData));
