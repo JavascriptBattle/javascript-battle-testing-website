@@ -58,7 +58,7 @@ var Game = Backbone.Model.extend({
       var usersHelpers = helpers;
       var usersHelpersCode = this.get('helpersCode');
       if (usersHelpersCode) {
-        end = usersHelpersCode.indexOf('module.exports = helpers;', usersHelpersCode.length - 25);
+        end = usersHelpersCode.indexOf('module.exports = helpers;');
         usersHelpersCode = usersHelpersCode.slice(0, end);
         usersHelpersCode += '\n return helpers;';
         usersHelpers = (new Function(usersHelpersCode))();
@@ -87,7 +87,7 @@ var Game = Backbone.Model.extend({
           this.clientSideGame[turnKeeper] = JSON.parse(JSON.stringify(gameData));
           console.log('----------');
           console.log('Turn number: ', (gameData.turn - 1));
-          console.log('Your hero ' + gameData.moveMessage.slice(7));
+          console.log('Your hero ' + gameData.moveMessage.slice(gameData.moveMessage.indexOf('walked')));
           console.log('**********');
         } else {
           var botsMove = gameData.activeHero.move(gameData, helpers);
