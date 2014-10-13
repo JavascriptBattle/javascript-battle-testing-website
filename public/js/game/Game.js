@@ -62,13 +62,14 @@ var Game = Backbone.Model.extend({
         this.setupGame(gameData, gameData.board.lengthOfSide);
       }
 
+
       var handleHeroTurn = gameData.handleHeroTurn;
       var turnKeeper = 0;
 
       while (gameData.ended === false || turnKeeper < 1010) {
         if (gameData.activeHero.id === 0) {
           var usersFunction = new Function(move);
-          var usersMove = usersFunction(gameData, helpers);
+          var usersMove = (usersFunction(gameData, helpers));
           handleHeroTurn.call(gameData, usersMove);
           this.clientSideGame[turnKeeper] = JSON.parse(JSON.stringify(gameData));
           console.log('----------');
@@ -76,9 +77,8 @@ var Game = Backbone.Model.extend({
           console.log('Your hero ' + gameData.moveMessage.slice(7));
           console.log('**********');
         } else {
-          var botsFunction = gameData.activeHero.move;
-          var botsMove = botsFunction(gameData, helpers);
-          handleHeroTurn.call(gameData, botsMove);
+          var choices = ['North', 'South', 'East', 'West'];
+          handleHeroTurn.call(gameData, (choices[Math.floor(Math.random()*4)])); 
           this.clientSideGame[turnKeeper] = JSON.parse(JSON.stringify(gameData));
         }
         var max = turnKeeper;
@@ -93,7 +93,7 @@ var Game = Backbone.Model.extend({
   initialize: function() {
 
   },
-
+  
   gameSet: function(gameData) {
     this.set('turn', gameData.turn);
     this.set('maxTurn', gameData.maxTurn);
@@ -131,7 +131,7 @@ var Game = Backbone.Model.extend({
       teamBlue.add(hero);
     });
 
-
+    
     _.each(_.flatten(gameData.board.tiles), function(tileObject, key, list) {
       //The id from our game model was overwriting
       tileObject.battleId = tileObject.id || tileObject.battleId;

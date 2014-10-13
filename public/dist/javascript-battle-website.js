@@ -140,6 +140,7 @@ var Game = Backbone.Model.extend({
         this.setupGame(gameData, gameData.board.lengthOfSide);
       }
 
+
       var handleHeroTurn = gameData.handleHeroTurn;
       var turnKeeper = 0;
 
@@ -486,7 +487,7 @@ var Game = Backbone.Model.extend({
     this.$el.html(html);
   }
 });;var RulesView = Backbone.View.extend({
-  
+
   initialize: function(){
     this.waiting = false;
     this.render();
@@ -549,15 +550,16 @@ var Game = Backbone.Model.extend({
         '<br>' +
         '<br>' +
         '<div class="centered">' +
-          '<input type="file" id="hero" title="Upload Hero.js here">' +
+          '<input type="file" id="hero" title="Upload hero.js here">' +
         '</div>' +
+        '<br>' +
         '<br>' +
         '<div class="centered simulate">' +
         '</div>' +
         '<script>' +
-          '$("input[type=file]").bootstrapFileInput()' +
+          '$("input[type=file]").bootstrapFileInput();' +
         '</script>' +
-      '</div>'
+      '</div>';
 
     var simulationHtml = '<button class="btn btn-success btn-lg">Simulate Game</button>';
     var waitingHtml = '<button class="btn btn-danger btn-lg">Waiting for Simulation to Finish</button>';
