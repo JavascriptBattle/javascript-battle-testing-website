@@ -86,17 +86,11 @@ var Game = Backbone.Model.extend({
           var usersMove = move(gameData, usersHelpers);
           handleHeroTurn.call(gameData, usersMove);
           this.clientSideGame[turnKeeper] = JSON.parse(JSON.stringify(gameData));
-          // console.log('----------');
-          // console.log('Turn number: ', (gameData.turn - 1));
-          // console.log('Your hero ' + gameData.moveMessage.slice(gameData.moveMessage.indexOf('walked')));
-          // console.log('**********');
+          console.log('----------');
+          console.log('Turn number: ', (gameData.turn - 1));
+          console.log('Your hero ' + gameData.moveMessage.slice(gameData.moveMessage.indexOf('walked')));
+          console.log('**********');
         } else if (gameData.activeHero.id !== 0) {
-          console.log('-----')
-          console.log('ID')
-          console.log(gameData.activeHero.id)
-          console.log('MOVE')
-          console.log(gameData.activeHero.move)
-          console.log('*****')
           var botsMove = gameData.activeHero.move(gameData, helpers);
           handleHeroTurn.call(gameData, botsMove);
           this.clientSideGame[turnKeeper] = JSON.parse(JSON.stringify(gameData));
