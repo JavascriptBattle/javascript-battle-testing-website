@@ -120,13 +120,23 @@ var Game = Backbone.Model.extend({
     } else {
       this.waiting = true;
 
-      var move = this.get('hero');
+      var gameData = owl.deepCopy(this.clientSideGame['setup']);
+
+      var move = this.get('heroCode');
       var end = move.indexOf('module.exports = move;', move.length - 25);
       move = move.slice(0, end);
       move += "\n return move(arguments[0], arguments[1]);";
+      move = new Function(move);
 
       var helpers = this.helpers;
-      var gameData = owl.deepCopy(this.clientSideGame['setup']);
+      var usersHelpers = helpers;
+      var usersHelpersCode = this.get('helpersCode');
+      if (usersHelpersCode) {
+        end = usersHelpersCode.indexOf('module.exports = helpers;', usersHelpersCode.length - 27);
+        usersHelpersCode = usersHelpersCode.slice(0, end);
+        usersHelpersCode += '\n return helpers;';
+        usersHelpers = (new Function(usersHelpersCode))();
+      }
 
       if (!this.clientSideGame.played) {
         this.setupGame(gameData, gameData.board.lengthOfSide);
@@ -140,13 +150,13 @@ var Game = Backbone.Model.extend({
         this.setupGame(gameData, gameData.board.lengthOfSide);
       }
 
+
       var handleHeroTurn = gameData.handleHeroTurn;
       var turnKeeper = 0;
 
       while (gameData.ended === false || turnKeeper < 1010) {
         if (gameData.activeHero.id === 0) {
-          var usersFunction = new Function(move);
-          var usersMove = (usersFunction(gameData, helpers));
+          var usersMove = move(gameData, usersHelpers);
           handleHeroTurn.call(gameData, usersMove);
           this.clientSideGame[turnKeeper] = JSON.parse(JSON.stringify(gameData));
           console.log('----------');
@@ -154,8 +164,12 @@ var Game = Backbone.Model.extend({
           console.log('Your hero ' + gameData.moveMessage.slice(7));
           console.log('**********');
         } else {
-          var choices = ['North', 'South', 'East', 'West'];
-          handleHeroTurn.call(gameData, (choices[Math.floor(Math.random()*4)])); 
+          var botsFunction = gameData.activeHero.move;
+          var botsMove = botsFunction(gameData, helpers);
+          if (gameData.activeHero.name === 'random') {
+            gameData.activeHero.name = gameData.activeHero.aiType;
+          }
+          handleHeroTurn.call(gameData, botsMove);
           this.clientSideGame[turnKeeper] = JSON.parse(JSON.stringify(gameData));
         }
         var max = turnKeeper;
@@ -170,7 +184,7 @@ var Game = Backbone.Model.extend({
   initialize: function() {
 
   },
-  
+
   gameSet: function(gameData) {
     this.set('turn', gameData.turn);
     this.set('maxTurn', gameData.maxTurn);
@@ -208,7 +222,7 @@ var Game = Backbone.Model.extend({
       teamBlue.add(hero);
     });
 
-    
+
     _.each(_.flatten(gameData.board.tiles), function(tileObject, key, list) {
       //The id from our game model was overwriting
       tileObject.battleId = tileObject.id || tileObject.battleId;
@@ -226,7 +240,8 @@ var Game = Backbone.Model.extend({
   updateTurn: function(turn) {
     this.gameSet(this.clientSideGame[turn]);
   }
-});;var GameView = Backbone.View.extend({
+});
+;var GameView = Backbone.View.extend({
   tagName: 'div',
   className: 'outer',
   initialize: function(){
@@ -486,7 +501,7 @@ var Game = Backbone.Model.extend({
     this.$el.html(html);
   }
 });;var RulesView = Backbone.View.extend({
-  
+
   initialize: function(){
     this.waiting = false;
     this.render();
@@ -494,7 +509,8 @@ var Game = Backbone.Model.extend({
 
   events: {
     'click .simulate': 'simulate',
-    'change #hero': 'getCode'
+    'change #hero': 'getHeroCode',
+    'change #helpers': 'getHelpersCode'
   },
 
   simulate: function() {
@@ -534,7 +550,7 @@ var Game = Backbone.Model.extend({
           '<div class="col-lg-8 col-lg-offset-2">' +
             '<ul class="info-list">' +
               '<ul class="rules-list">' +
-                '<li>Upload your hero.js file below.</li>' +
+                '<li>Upload your hero.js and helpers.js files below.</li>' +
                 '<li>Your hero\'s code will be run through a simulation game in your browser.*</li>' +
                 '<li>Open up your console to see what move your hero made on his/her turn.</li>' +
                 '<li>When the simulation is complete, you can watch the game below.</li>' +
@@ -543,21 +559,28 @@ var Game = Backbone.Model.extend({
               '</ul>' +
             '</ul>' +
             '* Your code will be run in your browser and not on our server, so it would be easy to cheat here. Just know those tricks won\'t work in the real game!' +
-            '<br>* Also note that the heroes in the simulation will be choosing directions randomly, so they will not be as smart as your opponents in the real game. The ability to choose enemy AI types in the simulation is coming soon!' +
+            '<br>* Also note that the hero types in the simulation will be chosen randomly. The ability to choose enemy AI types in the simulation is coming soon!' +
           '</div>' +
         '</div>' +
         '<br>' +
         '<br>' +
         '<div class="centered">' +
-          '<input type="file" id="hero" title="Upload Hero.js here">' +
+          '<input type="file" id="hero" title="Upload hero.js here">' +
         '</div>' +
+        '<br>' +
+        '<div class="centered text-center small">' +
+          '<small>(optional)</small>' +
+          '<br>' +
+          '<input type="file" id="helpers" title="Upload helpers.js here">' +
+        '</div>' +
+        '<br>' +
         '<br>' +
         '<div class="centered simulate">' +
         '</div>' +
         '<script>' +
-          '$("input[type=file]").bootstrapFileInput()' +
+          '$("input[type=file]").bootstrapFileInput();' +
         '</script>' +
-      '</div>'
+      '</div>';
 
     var simulationHtml = '<button class="btn btn-success btn-lg">Simulate Game</button>';
     var waitingHtml = '<button class="btn btn-danger btn-lg">Waiting for Simulation to Finish</button>';
@@ -572,20 +595,33 @@ var Game = Backbone.Model.extend({
     }
   },
 
-  getCode: function(heroOrHelper) {
+  getHeroCode: function() {
     var reader = new FileReader();
-    var code = heroOrHelper.currentTarget.files[0];
+    var heroCode = this.$el.find('#hero')[0].files[0];
     var that = this;
     reader.onload = function(e) {
-      that.model.set(heroOrHelper.currentTarget.id, reader.result);
-      console.log(heroOrHelper.currentTarget.id + ' code has been saved.\nNo need to re-upload, unless you have changed your file.');
+      that.model.set('heroCode', reader.result);
+      console.log('Hero code has been saved.\nNo need to re-upload, unless you have changed your file.');
     };
-    reader.readAsText(code);
+    reader.readAsText(heroCode);
+
+  },
+
+  getHelpersCode: function() {
+    var reader = new FileReader();
+    var helpersCode = this.$el.find('#helpers')[0].files[0];
+    var that = this;
+    reader.onload = function(e) {
+      that.model.set('helpersCode', reader.result);
+      console.log('Helpers code has been saved.\nNo need to re-upload, unless you have changed your file.');
+    };
+    reader.readAsText(helpersCode);
 
   }
 
 
-});;/**
+});
+;/**
  * cbpAnimatedHeader.js v1.0.0
  * http://www.codrops.com
  *
