@@ -1,5 +1,5 @@
 var RulesView = Backbone.View.extend({
-  
+
   initialize: function(){
     this.waiting = false;
     this.render();
@@ -7,7 +7,8 @@ var RulesView = Backbone.View.extend({
 
   events: {
     'click .simulate': 'simulate',
-    'change #hero': 'getCode'
+    'change #hero': 'getHeroCode',
+    'change #helpers': 'getHelpersCode'
   },
 
   simulate: function() {
@@ -47,7 +48,7 @@ var RulesView = Backbone.View.extend({
           '<div class="col-lg-8 col-lg-offset-2">' +
             '<ul class="info-list">' +
               '<ul class="rules-list">' +
-                '<li>Upload your hero.js file below.</li>' +
+                '<li>Upload your hero.js and helpers.js files below.</li>' +
                 '<li>Your hero\'s code will be run through a simulation game in your browser.*</li>' +
                 '<li>Open up your console to see what move your hero made on his/her turn.</li>' +
                 '<li>When the simulation is complete, you can watch the game below.</li>' +
@@ -56,21 +57,28 @@ var RulesView = Backbone.View.extend({
               '</ul>' +
             '</ul>' +
             '* Your code will be run in your browser and not on our server, so it would be easy to cheat here. Just know those tricks won\'t work in the real game!' +
-            '<br>* Also note that the heroes in the simulation will be choosing directions randomly, so they will not be as smart as your opponents in the real game. The ability to choose enemy AI types in the simulation is coming soon!' +
+            '<br>* Also note that the hero types in the simulation will be chosen randomly. The ability to choose enemy AI types in the simulation is coming soon!' +
           '</div>' +
         '</div>' +
         '<br>' +
         '<br>' +
         '<div class="centered">' +
-          '<input type="file" id="hero" title="Upload Hero.js here">' +
+          '<input type="file" id="hero" title="Upload hero.js here">' +
         '</div>' +
+        '<br>' +
+        '<div class="centered text-center small">' +
+          '<small>(optional)</small>' +
+          '<br>' +
+          '<input type="file" id="helpers" title="Upload helpers.js here">' +
+        '</div>' +
+        '<br>' +
         '<br>' +
         '<div class="centered simulate">' +
         '</div>' +
         '<script>' +
-          '$("input[type=file]").bootstrapFileInput()' +
+          '$("input[type=file]").bootstrapFileInput();' +
         '</script>' +
-      '</div>'
+      '</div>';
 
     var simulationHtml = '<button class="btn btn-success btn-lg">Simulate Game</button>';
     var waitingHtml = '<button class="btn btn-danger btn-lg">Waiting for Simulation to Finish</button>';
@@ -85,15 +93,27 @@ var RulesView = Backbone.View.extend({
     }
   },
 
-  getCode: function(heroOrHelper) {
+  getHeroCode: function() {
     var reader = new FileReader();
-    var code = heroOrHelper.currentTarget.files[0];
+    var heroCode = this.$el.find('#hero')[0].files[0];
     var that = this;
     reader.onload = function(e) {
-      that.model.set(heroOrHelper.currentTarget.id, reader.result);
-      console.log(heroOrHelper.currentTarget.id + ' code has been saved.\nNo need to re-upload, unless you have changed your file.');
+      that.model.set('heroCode', reader.result);
+      console.log('Hero code has been saved.\nNo need to re-upload, unless you have changed your file.');
     };
-    reader.readAsText(code);
+    reader.readAsText(heroCode);
+
+  },
+
+  getHelpersCode: function() {
+    var reader = new FileReader();
+    var helpersCode = this.$el.find('#helpers')[0].files[0];
+    var that = this;
+    reader.onload = function(e) {
+      that.model.set('helpersCode', reader.result);
+      console.log('Helpers code has been saved.\nNo need to re-upload, unless you have changed your file.');
+    };
+    reader.readAsText(helpersCode);
 
   }
 
