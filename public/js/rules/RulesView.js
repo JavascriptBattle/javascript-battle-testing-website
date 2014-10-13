@@ -1,5 +1,5 @@
 var RulesView = Backbone.View.extend({
-  
+
   initialize: function(){
     this.waiting = false;
     this.render();
@@ -7,7 +7,7 @@ var RulesView = Backbone.View.extend({
 
   events: {
     'click .simulate': 'simulate',
-    'change #hero': 'getCode'
+    'change #hero': 'getHeroCode'
   },
 
   simulate: function() {
@@ -62,15 +62,16 @@ var RulesView = Backbone.View.extend({
         '<br>' +
         '<br>' +
         '<div class="centered">' +
-          '<input type="file" id="hero" title="Upload Hero.js here">' +
+          '<input type="file" id="hero" title="Upload hero.js here">' +
         '</div>' +
+        '<br>' +
         '<br>' +
         '<div class="centered simulate">' +
         '</div>' +
         '<script>' +
-          '$("input[type=file]").bootstrapFileInput()' +
+          '$("input[type=file]").bootstrapFileInput();' +
         '</script>' +
-      '</div>'
+      '</div>';
 
     var simulationHtml = '<button class="btn btn-success btn-lg">Simulate Game</button>';
     var waitingHtml = '<button class="btn btn-danger btn-lg">Waiting for Simulation to Finish</button>';
@@ -85,15 +86,15 @@ var RulesView = Backbone.View.extend({
     }
   },
 
-  getCode: function(heroOrHelper) {
+  getHeroCode: function() {
     var reader = new FileReader();
-    var code = heroOrHelper.currentTarget.files[0];
+    var heroCode = this.$el.find('#hero')[0].files[0];
     var that = this;
     reader.onload = function(e) {
-      that.model.set(heroOrHelper.currentTarget.id, reader.result);
-      console.log(heroOrHelper.currentTarget.id + ' code has been saved.\nNo need to re-upload, unless you have changed your file.');
+      that.model.set('heroCode', reader.result);
+      console.log('Hero code has been saved.\nNo need to re-upload, unless you have changed your file.');
     };
-    reader.readAsText(code);
+    reader.readAsText(heroCode);
 
   }
 

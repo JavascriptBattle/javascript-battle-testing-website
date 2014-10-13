@@ -114,13 +114,13 @@ var Game = Backbone.Model.extend({
   },
 
   runGame: function() {
-    if (this.get('hero') === undefined) {
+    if (this.get('heroCode') === undefined) {
       alert('Please upload your Hero.js file first.');
       return 'Error';
     } else {
       this.waiting = true;
 
-      var move = this.get('hero');
+      var move = this.get('heroCode');
       var end = move.indexOf('module.exports = move;', move.length - 25);
       move = move.slice(0, end);
       move += "\n return move(arguments[0], arguments[1]);";
@@ -140,13 +140,14 @@ var Game = Backbone.Model.extend({
         this.setupGame(gameData, gameData.board.lengthOfSide);
       }
 
+
       var handleHeroTurn = gameData.handleHeroTurn;
       var turnKeeper = 0;
 
       while (gameData.ended === false || turnKeeper < 1010) {
         if (gameData.activeHero.id === 0) {
           var usersFunction = new Function(move);
-          var usersMove = usersFunction(gameData, helpers);
+          var usersMove = (usersFunction(gameData, helpers));
           handleHeroTurn.call(gameData, usersMove);
           this.clientSideGame[turnKeeper] = JSON.parse(JSON.stringify(gameData));
           console.log('----------');
@@ -154,9 +155,8 @@ var Game = Backbone.Model.extend({
           console.log('Your hero ' + gameData.moveMessage.slice(7));
           console.log('**********');
         } else {
-          var botsFunction = gameData.activeHero.move;
-          var botsMove = botsFunction(gameData, helpers);
-          handleHeroTurn.call(gameData, botsMove);
+          var choices = ['North', 'South', 'East', 'West'];
+          handleHeroTurn.call(gameData, (choices[Math.floor(Math.random()*4)])); 
           this.clientSideGame[turnKeeper] = JSON.parse(JSON.stringify(gameData));
         }
         var max = turnKeeper;
@@ -171,7 +171,7 @@ var Game = Backbone.Model.extend({
   initialize: function() {
 
   },
-
+  
   gameSet: function(gameData) {
     this.set('turn', gameData.turn);
     this.set('maxTurn', gameData.maxTurn);
@@ -209,7 +209,7 @@ var Game = Backbone.Model.extend({
       teamBlue.add(hero);
     });
 
-
+    
     _.each(_.flatten(gameData.board.tiles), function(tileObject, key, list) {
       //The id from our game model was overwriting
       tileObject.battleId = tileObject.id || tileObject.battleId;
@@ -227,8 +227,7 @@ var Game = Backbone.Model.extend({
   updateTurn: function(turn) {
     this.gameSet(this.clientSideGame[turn]);
   }
-});
-;var GameView = Backbone.View.extend({
+});;var GameView = Backbone.View.extend({
   tagName: 'div',
   className: 'outer',
   initialize: function(){
@@ -488,7 +487,7 @@ var Game = Backbone.Model.extend({
     this.$el.html(html);
   }
 });;var RulesView = Backbone.View.extend({
-  
+
   initialize: function(){
     this.waiting = false;
     this.render();
@@ -496,7 +495,7 @@ var Game = Backbone.Model.extend({
 
   events: {
     'click .simulate': 'simulate',
-    'change #hero': 'getCode'
+    'change #hero': 'getHeroCode'
   },
 
   simulate: function() {
@@ -551,15 +550,16 @@ var Game = Backbone.Model.extend({
         '<br>' +
         '<br>' +
         '<div class="centered">' +
-          '<input type="file" id="hero" title="Upload Hero.js here">' +
+          '<input type="file" id="hero" title="Upload hero.js here">' +
         '</div>' +
+        '<br>' +
         '<br>' +
         '<div class="centered simulate">' +
         '</div>' +
         '<script>' +
-          '$("input[type=file]").bootstrapFileInput()' +
+          '$("input[type=file]").bootstrapFileInput();' +
         '</script>' +
-      '</div>'
+      '</div>';
 
     var simulationHtml = '<button class="btn btn-success btn-lg">Simulate Game</button>';
     var waitingHtml = '<button class="btn btn-danger btn-lg">Waiting for Simulation to Finish</button>';
@@ -574,15 +574,15 @@ var Game = Backbone.Model.extend({
     }
   },
 
-  getCode: function(heroOrHelper) {
+  getHeroCode: function() {
     var reader = new FileReader();
-    var code = heroOrHelper.currentTarget.files[0];
+    var heroCode = this.$el.find('#hero')[0].files[0];
     var that = this;
     reader.onload = function(e) {
-      that.model.set(heroOrHelper.currentTarget.id, reader.result);
-      console.log(heroOrHelper.currentTarget.id + ' code has been saved.\nNo need to re-upload, unless you have changed your file.');
+      that.model.set('heroCode', reader.result);
+      console.log('Hero code has been saved.\nNo need to re-upload, unless you have changed your file.');
     };
-    reader.readAsText(code);
+    reader.readAsText(heroCode);
 
   }
 
