@@ -7,7 +7,8 @@ var RulesView = Backbone.View.extend({
 
   events: {
     'click .simulate': 'simulate',
-    'change #hero': 'getHeroCode'
+    'change #hero': 'getHeroCode',
+    'change #helpers': 'getHelpersCode',
   },
 
   simulate: function() {
@@ -64,16 +65,19 @@ var RulesView = Backbone.View.extend({
         '<div class="centered">' +
           '<input type="file" id="hero" title="Upload hero.js here">' +
         '</div>' +
-        '<div class="centered">' +
-          '<input type="file" id="helpers" title="(Optional) Upload helpers.js here">' +
+        '<br>' +
+        '<div class="centered text-center small">' +
+          '<small>(optional)</small>' +
+          '<br>' +
+          '<input type="file" id="helpers" title="Upload helpers.js here">' +
         '</div>' +
         '<br>' +
         '<div class="centered simulate">' +
         '</div>' +
         '<script>' +
-          '$("input[type=file]").bootstrapFileInput()' +
+          '$("input[type=file]").bootstrapFileInput();' +
         '</script>' +
-      '</div>'
+      '</div>';
 
     var simulationHtml = '<button class="btn btn-success btn-lg">Simulate Game</button>';
     var waitingHtml = '<button class="btn btn-danger btn-lg">Waiting for Simulation to Finish</button>';

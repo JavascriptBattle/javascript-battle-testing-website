@@ -50,13 +50,14 @@ var Game = Backbone.Model.extend({
       move += "\n return move(arguments[0], arguments[1]);";
 
       var helpers = this.helpers;
-      var helpersCode = this.get('helpersCode');
-      var getUsersHelpers = function () {
-        if (helpersCode === undefined) {
-          return helpers;
-        }
-        return new Function(helpersCode);
-      };
+      var usersHelpersCode = this.get('helpersCode');
+      if (usersHelpersCode === undefined) {
+        usersHelpersCode = helpers.toString();
+      } else {
+        end = usersHelpersCode.indexOf('module.exports = helpers;', usersHelpersCode.length - 27);
+        usersHelpersCode = usersHelpersCode.slice(0, end);
+        usersHelpersCode += "\n return helpers;";
+      }
 
       if (!this.clientSideGame.played) {
         this.setupGame(gameData, gameData.board.lengthOfSide);
@@ -76,7 +77,7 @@ var Game = Backbone.Model.extend({
       while (gameData.ended === false || turnKeeper < 1010) {
         if (gameData.activeHero.id === 0) {
           var usersFunction = new Function(move);
-          var usersHelpers = getUsersHelpers();
+          var usersHelpers = new Function(usersHelpersCode)();
           var usersMove = (usersFunction(gameData, usersHelpers));
           handleHeroTurn.call(gameData, usersMove);
           this.clientSideGame[turnKeeper] = JSON.parse(JSON.stringify(gameData));
