@@ -120,13 +120,23 @@ var Game = Backbone.Model.extend({
     } else {
       this.waiting = true;
 
+      var gameData = owl.deepCopy(this.clientSideGame['setup']);
+
       var move = this.get('heroCode');
       var end = move.indexOf('module.exports = move;', move.length - 25);
       move = move.slice(0, end);
       move += "\n return move(arguments[0], arguments[1]);";
+      move = new Function(move);
 
       var helpers = this.helpers;
-      var gameData = owl.deepCopy(this.clientSideGame['setup']);
+      var usersHelpers = helpers;
+      var usersHelpersCode = this.get('helpersCode');
+      if (usersHelpersCode) {
+        end = usersHelpersCode.indexOf('module.exports = helpers;', usersHelpersCode.length - 27);
+        usersHelpersCode = usersHelpersCode.slice(0, end);
+        usersHelpersCode += '\n return helpers;';
+        usersHelpers = (new Function(usersHelpersCode))();
+      }
 
       if (!this.clientSideGame.played) {
         this.setupGame(gameData, gameData.board.lengthOfSide);
@@ -146,8 +156,7 @@ var Game = Backbone.Model.extend({
 
       while (gameData.ended === false || turnKeeper < 1010) {
         if (gameData.activeHero.id === 0) {
-          var usersFunction = new Function(move);
-          var usersMove = (usersFunction(gameData, helpers));
+          var usersMove = move(gameData, usersHelpers);
           handleHeroTurn.call(gameData, usersMove);
           this.clientSideGame[turnKeeper] = JSON.parse(JSON.stringify(gameData));
           console.log('----------');
@@ -156,7 +165,7 @@ var Game = Backbone.Model.extend({
           console.log('**********');
         } else {
           var choices = ['North', 'South', 'East', 'West'];
-          handleHeroTurn.call(gameData, (choices[Math.floor(Math.random()*4)])); 
+          handleHeroTurn.call(gameData, (choices[Math.floor(Math.random()*4)]));
           this.clientSideGame[turnKeeper] = JSON.parse(JSON.stringify(gameData));
         }
         var max = turnKeeper;
@@ -171,7 +180,7 @@ var Game = Backbone.Model.extend({
   initialize: function() {
 
   },
-  
+
   gameSet: function(gameData) {
     this.set('turn', gameData.turn);
     this.set('maxTurn', gameData.maxTurn);
@@ -209,7 +218,7 @@ var Game = Backbone.Model.extend({
       teamBlue.add(hero);
     });
 
-    
+
     _.each(_.flatten(gameData.board.tiles), function(tileObject, key, list) {
       //The id from our game model was overwriting
       tileObject.battleId = tileObject.id || tileObject.battleId;
@@ -227,7 +236,8 @@ var Game = Backbone.Model.extend({
   updateTurn: function(turn) {
     this.gameSet(this.clientSideGame[turn]);
   }
-});;var GameView = Backbone.View.extend({
+});
+;var GameView = Backbone.View.extend({
   tagName: 'div',
   className: 'outer',
   initialize: function(){
@@ -495,7 +505,8 @@ var Game = Backbone.Model.extend({
 
   events: {
     'click .simulate': 'simulate',
-    'change #hero': 'getHeroCode'
+    'change #hero': 'getHeroCode',
+    'change #helpers': 'getHelpersCode',
   },
 
   simulate: function() {
@@ -553,6 +564,12 @@ var Game = Backbone.Model.extend({
           '<input type="file" id="hero" title="Upload hero.js here">' +
         '</div>' +
         '<br>' +
+        '<div class="centered text-center small">' +
+          '<small>(optional)</small>' +
+          '<br>' +
+          '<input type="file" id="helpers" title="Upload helpers.js here">' +
+        '</div>' +
+        '<br>' +
         '<br>' +
         '<div class="centered simulate">' +
         '</div>' +
@@ -584,10 +601,23 @@ var Game = Backbone.Model.extend({
     };
     reader.readAsText(heroCode);
 
+  },
+
+  getHelpersCode: function() {
+    var reader = new FileReader();
+    var helpersCode = this.$el.find('#helpers')[0].files[0];
+    var that = this;
+    reader.onload = function(e) {
+      that.model.set('helpersCode', reader.result);
+      console.log('Helpers code has been saved.\nNo need to re-upload, unless you have changed your file.');
+    };
+    reader.readAsText(helpersCode);
+
   }
 
 
-});;/**
+});
+;/**
  * cbpAnimatedHeader.js v1.0.0
  * http://www.codrops.com
  *
