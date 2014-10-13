@@ -52,6 +52,8 @@ From within the root directory:
 npm install
 bower install
 ```
+Additionally, we have included a number of tasks in Grunt, so be sure to run ```grunt``` for local testing.
+
 ### Stack
 
 The stack behind Javascript Battle can be evenly divided into two categories:
@@ -68,6 +70,7 @@ For the website, our stack includes the above dependencies, which you can read m
 - [jQuery](http://jquery.com/)
 - [Modernizr](http://modernizr.com/)
 - [Powerange](http://www.jplugins.net/powerange/)
+- [Browserify](http://browserify.org/)
 - [Underscore](http://underscorejs.org/)
 
 Our game engine is hosted on [Microsoft Azure](https://azure.microsoft.com/en-us/), with the following stack:
@@ -76,5 +79,7 @@ Our game engine is hosted on [Microsoft Azure](https://azure.microsoft.com/en-us
 - [Cron](https://help.ubuntu.com/community/CronHowto)
 
 ## Contributing
+
+#####Please make any pull requests to the 'staging' branch, as we use this for testing in a production environment.#####
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
