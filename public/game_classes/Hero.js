@@ -124,26 +124,6 @@ Hero.prototype.move = function(gameData, helpers) {
 };
 
 Hero.brains = {
-  Aggressor: function(gameData, helpers) {
-    // Here, we ask if your hero's health is below 30
-    if (gameData.activeHero().health <= 30){
-      // If it is, head towards the nearest health well
-      return helpers.findNearestHealthWell(gameData);
-    } else {
-      // Otherwise, go attack someone...anyone.
-      return helpers.findNearestEnemy(gameData);
-    }
-  },
-  HealthNut: function(gameData, helpers) {
-    // Here, we ask if your hero's health is below 75
-    if (gameData.activeHero().health <= 75){
-      // If it is, head towards the nearest health well
-      return helpers.findNearestHealthWell(gameData);
-    } else {
-      // Otherwise, go mine some diamonds!!!
-      return helpers.findNearestDiamondMine(gameData);
-    }
-  },
   BlindMan: function(gameData, helpers) {
     var myHero = gameData.activeHero;
     var choices = ['North', 'South', 'East', 'West'];
