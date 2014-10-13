@@ -677,20 +677,15 @@ Hero.prototype.getCode = function() {
   return 'H' + idStr;
 };
 
-Hero.prototype.aiGet = function() {
-  var brains = Object.keys(Hero.brains);
-  this.aiType = brains[ brains.length * Math.random() << 0 ];
-  return this.aiType;
-};
-
-Hero.prototype.move = function(gameData, helpers) {
+Hero.prototype.getMove = function(gameData, helpers) {
     // Select a random brain for this hero
-    if (!this.aiType) {
-      this.move = Hero.brains[Hero.prototype.aiGet()];
-      return this.move(gameData, helpers);
-    } else {
-      return this.move(gameData, helpers);
-    }
+    var brains = Object.keys(Hero.brains);
+    var aiType = brains[ brains.length * Math.random() << 0 ];
+    var move = Hero.brains[aiType];
+    return {
+      aiType: aiType,
+      move: move
+    };
 };
 
 Hero.brains = {
