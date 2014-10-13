@@ -114,13 +114,13 @@ var Game = Backbone.Model.extend({
   },
 
   runGame: function() {
-    if (this.get('heroCode') === undefined) {
+    if (this.get('hero') === undefined) {
       alert('Please upload your Hero.js file first.');
       return 'Error';
     } else {
       this.waiting = true;
 
-      var move = this.get('heroCode');
+      var move = this.get('hero');
       var end = move.indexOf('module.exports = move;', move.length - 25);
       move = move.slice(0, end);
       move += "\n return move(arguments[0], arguments[1]);";
@@ -146,7 +146,7 @@ var Game = Backbone.Model.extend({
       while (gameData.ended === false || turnKeeper < 1010) {
         if (gameData.activeHero.id === 0) {
           var usersFunction = new Function(move);
-          var usersMove = (usersFunction(gameData, helpers));
+          var usersMove = usersFunction(gameData, helpers);
           handleHeroTurn.call(gameData, usersMove);
           this.clientSideGame[turnKeeper] = JSON.parse(JSON.stringify(gameData));
           console.log('----------');
@@ -154,8 +154,9 @@ var Game = Backbone.Model.extend({
           console.log('Your hero ' + gameData.moveMessage.slice(7));
           console.log('**********');
         } else {
-          var choices = ['North', 'South', 'East', 'West'];
-          handleHeroTurn.call(gameData, (choices[Math.floor(Math.random()*4)])); 
+          var botsFunction = gameData.activeHero.move;
+          var botsMove = botsFunction(gameData, helpers);
+          handleHeroTurn.call(gameData, botsMove);
           this.clientSideGame[turnKeeper] = JSON.parse(JSON.stringify(gameData));
         }
         var max = turnKeeper;
@@ -170,7 +171,7 @@ var Game = Backbone.Model.extend({
   initialize: function() {
 
   },
-  
+
   gameSet: function(gameData) {
     this.set('turn', gameData.turn);
     this.set('maxTurn', gameData.maxTurn);
@@ -208,7 +209,7 @@ var Game = Backbone.Model.extend({
       teamBlue.add(hero);
     });
 
-    
+
     _.each(_.flatten(gameData.board.tiles), function(tileObject, key, list) {
       //The id from our game model was overwriting
       tileObject.battleId = tileObject.id || tileObject.battleId;
@@ -226,7 +227,8 @@ var Game = Backbone.Model.extend({
   updateTurn: function(turn) {
     this.gameSet(this.clientSideGame[turn]);
   }
-});;var GameView = Backbone.View.extend({
+});
+;var GameView = Backbone.View.extend({
   tagName: 'div',
   className: 'outer',
   initialize: function(){
@@ -494,7 +496,7 @@ var Game = Backbone.Model.extend({
 
   events: {
     'click .simulate': 'simulate',
-    'change #hero': 'getHeroCode'
+    'change #hero': 'getCode'
   },
 
   simulate: function() {
@@ -572,15 +574,15 @@ var Game = Backbone.Model.extend({
     }
   },
 
-  getHeroCode: function() {
+  getCode: function(heroOrHelper) {
     var reader = new FileReader();
-    var heroCode = this.$el.find('#hero')[0].files[0];
+    var code = heroOrHelper.currentTarget.files[0];
     var that = this;
     reader.onload = function(e) {
-      that.model.set('heroCode', reader.result);
-      console.log('Hero code has been saved.\nNo need to re-upload, unless you have changed your file.');
+      that.model.set(heroOrHelper.currentTarget.id, reader.result);
+      console.log(heroOrHelper.currentTarget.id + ' code has been saved.\nNo need to re-upload, unless you have changed your file.');
     };
-    reader.readAsText(heroCode);
+    reader.readAsText(code);
 
   }
 
