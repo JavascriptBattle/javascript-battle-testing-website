@@ -118,16 +118,16 @@ Hero.prototype.getCode = function() {
 
 Hero.prototype.getMove = function(gameData, helpers) {
     // Select a random brain for this hero
-    var brains = Object.keys(Hero.brains);
+    var brains = Object.keys(Hero.prototype.brains);
     var aiType = brains[ brains.length * Math.random() << 0 ];
-    var move = Hero.brains[aiType];
+    var move = Hero.prototype.brains[aiType];
     return {
       aiType: aiType,
       move: move
     };
 };
 
-Hero.brains = {
+Hero.prototype.brains = {
   BlindMan: function(gameData, helpers) {
     var myHero = gameData.activeHero;
     var choices = ['North', 'South', 'East', 'West'];

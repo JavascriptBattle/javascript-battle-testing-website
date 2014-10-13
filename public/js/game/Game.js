@@ -33,8 +33,9 @@ var Game = Backbone.Model.extend({
       game.addDiamondMine(randomNumber(boardSize), randomNumber(boardSize));
     }
     for (var i=0; i<game.heroes.length; i++) {
-      game.heroes[i].move = game.heroes[i].getMove().move;
-      game.heroes[i].name = game.heroes[i].getMove().aiType;
+      var result = game.heroes[i].getMove();
+      game.heroes[i].move = result.move
+      game.heroes[i].name = result.aiType;
     }
 
   },
@@ -80,16 +81,22 @@ var Game = Backbone.Model.extend({
       var handleHeroTurn = gameData.handleHeroTurn;
       var turnKeeper = 0;
 
-      while (gameData.ended === false || turnKeeper < 1010) {
+      while (gameData.ended === false) {
         if (gameData.activeHero.id === 0) {
           var usersMove = move(gameData, usersHelpers);
           handleHeroTurn.call(gameData, usersMove);
           this.clientSideGame[turnKeeper] = JSON.parse(JSON.stringify(gameData));
-          console.log('----------');
-          console.log('Turn number: ', (gameData.turn - 1));
-          console.log('Your hero ' + gameData.moveMessage.slice(gameData.moveMessage.indexOf('walked')));
-          console.log('**********');
-        } else {
+          // console.log('----------');
+          // console.log('Turn number: ', (gameData.turn - 1));
+          // console.log('Your hero ' + gameData.moveMessage.slice(gameData.moveMessage.indexOf('walked')));
+          // console.log('**********');
+        } else if (gameData.activeHero.id !== 0) {
+          console.log('-----')
+          console.log('ID')
+          console.log(gameData.activeHero.id)
+          console.log('MOVE')
+          console.log(gameData.activeHero.move)
+          console.log('*****')
           var botsMove = gameData.activeHero.move(gameData, helpers);
           handleHeroTurn.call(gameData, botsMove);
           this.clientSideGame[turnKeeper] = JSON.parse(JSON.stringify(gameData));

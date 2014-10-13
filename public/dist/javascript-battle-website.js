@@ -136,7 +136,7 @@ var Game = Backbone.Model.extend({
       var usersHelpers = helpers;
       var usersHelpersCode = this.get('helpersCode');
       if (usersHelpersCode) {
-        end = usersHelpersCode.indexOf('module.exports = helpers;', usersHelpersCode.length - 25);
+        end = usersHelpersCode.indexOf('module.exports = helpers;');
         usersHelpersCode = usersHelpersCode.slice(0, end);
         usersHelpersCode += '\n return helpers;';
         usersHelpers = (new Function(usersHelpersCode))();
@@ -158,18 +158,23 @@ var Game = Backbone.Model.extend({
       var handleHeroTurn = gameData.handleHeroTurn;
       var turnKeeper = 0;
 
-      while (gameData.ended === false || turnKeeper < 1010) {
+      while (gameData.ended === false) {
         if (gameData.activeHero.id === 0) {
           var usersMove = move(gameData, usersHelpers);
           handleHeroTurn.call(gameData, usersMove);
           this.clientSideGame[turnKeeper] = JSON.parse(JSON.stringify(gameData));
-          console.log('----------');
-          console.log('Turn number: ', (gameData.turn - 1));
-          console.log('Your hero ' + gameData.moveMessage.slice(7));
-          console.log('**********');
-        } else {
-          var botsFunction = gameData.activeHero.move;
-          var botsMove = botsFunction(gameData, helpers);
+          // console.log('----------');
+          // console.log('Turn number: ', (gameData.turn - 1));
+          // console.log('Your hero ' + gameData.moveMessage.slice(gameData.moveMessage.indexOf('walked')));
+          // console.log('**********');
+        } else if (gameData.activeHero.id !== 0) {
+          console.log('-----')
+          console.log('ID')
+          console.log(gameData.activeHero.id)
+          console.log('MOVE')
+          console.log(gameData.activeHero.move)
+          console.log('*****')
+          var botsMove = gameData.activeHero.move(gameData, helpers);
           handleHeroTurn.call(gameData, botsMove);
           this.clientSideGame[turnKeeper] = JSON.parse(JSON.stringify(gameData));
         }
