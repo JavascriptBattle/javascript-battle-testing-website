@@ -164,8 +164,10 @@ var Game = Backbone.Model.extend({
           console.log('Your hero ' + gameData.moveMessage.slice(7));
           console.log('**********');
         } else {
-          var choices = ['North', 'South', 'East', 'West'];
-          handleHeroTurn.call(gameData, (choices[Math.floor(Math.random()*4)]));
+          var botsFunction = gameData.activeHero.move;
+          var botsMove = botsFunction(gameData, helpers);
+          gameData.activeHero.name = gameData.activeHero.aiType;
+          handleHeroTurn.call(gameData, botsMove);
           this.clientSideGame[turnKeeper] = JSON.parse(JSON.stringify(gameData));
         }
         var max = turnKeeper;
@@ -546,7 +548,7 @@ var Game = Backbone.Model.extend({
           '<div class="col-lg-8 col-lg-offset-2">' +
             '<ul class="info-list">' +
               '<ul class="rules-list">' +
-                '<li>Upload your hero.js file below.</li>' +
+                '<li>Upload your hero.js and helpers.js files below.</li>' +
                 '<li>Your hero\'s code will be run through a simulation game in your browser.*</li>' +
                 '<li>Open up your console to see what move your hero made on his/her turn.</li>' +
                 '<li>When the simulation is complete, you can watch the game below.</li>' +
@@ -555,7 +557,7 @@ var Game = Backbone.Model.extend({
               '</ul>' +
             '</ul>' +
             '* Your code will be run in your browser and not on our server, so it would be easy to cheat here. Just know those tricks won\'t work in the real game!' +
-            '<br>* Also note that the heroes in the simulation will be choosing directions randomly, so they will not be as smart as your opponents in the real game. The ability to choose enemy AI types in the simulation is coming soon!' +
+            '<br>* Also note that the hero types in the simulation will be chosen randomly. The ability to choose enemy AI types in the simulation is coming soon!' +
           '</div>' +
         '</div>' +
         '<br>' +

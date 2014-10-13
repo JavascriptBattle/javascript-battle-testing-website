@@ -86,8 +86,12 @@ var Game = Backbone.Model.extend({
           console.log('Your hero ' + gameData.moveMessage.slice(7));
           console.log('**********');
         } else {
-          var choices = ['North', 'South', 'East', 'West'];
-          handleHeroTurn.call(gameData, (choices[Math.floor(Math.random()*4)]));
+          var botsFunction = gameData.activeHero.move;
+          var botsMove = botsFunction(gameData, helpers);
+          if (gameData.activeHero.name === 'random') {
+            gameData.activeHero.name = gameData.activeHero.aiType;
+          }
+          handleHeroTurn.call(gameData, botsMove);
           this.clientSideGame[turnKeeper] = JSON.parse(JSON.stringify(gameData));
         }
         var max = turnKeeper;
