@@ -191,7 +191,7 @@ Hero.brains = {
     var directionToHealthWell = healthWellStats.direction;
 
     if (myHero.health < 40) {
-      Heal no matter what if low health
+      //Heal no matter what if low health
       return directionToHealthWell;
     } else if (myHero.health < 100 && distanceToHealthWell === 1) {
       //Heal if you aren't full health and are close to a health well already
