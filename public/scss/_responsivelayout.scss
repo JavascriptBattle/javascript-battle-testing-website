@@ -102,7 +102,7 @@
     height: 18vw;
     background-color: yellow;
     border: 4px solid black;
-    z-index: 9999;
+    z-index: 2;
   }
 }
 
@@ -113,12 +113,12 @@
   }
   .announce {
     position: absolute;
-    top: 8vw;
+    top: 12vw;
     width: 100%;
     height: 18vw;
     background-color: yellow;
     border: 4px solid black;
-    z-index: 9999;
+    z-index: 2;
   }
   @-moz-document url-prefix() {
     .battle-tile {
@@ -134,12 +134,12 @@
 @media (max-width: 763px) {
   .announce {
     position: absolute;
-    top: 8vw;
+    top: 12vw;
     width: 100%;
     height: 18vw;
     background-color: yellow;
     border: 4px solid black;
-    z-index: 9999;
+    z-index: 2;
   }
   @-moz-document url-prefix() {
     .team-info {
@@ -203,12 +203,12 @@
   }
   .announce {
     position: absolute;
-    top: 8vw;
+    top: 12vw;
     width: 100%;
     height: 18vw;
     background-color: yellow;
     border: 4px solid black;
-    z-index: 9999;
+    z-index: 2;
   }
   @-moz-document url-prefix() {
     .battle-tile {
@@ -224,12 +224,12 @@
 @media (max-width: 590px) {
   .announce {
     position: absolute;
-    top: 8vw;
+    top: 10vw;
     width: 100%;
     height: 175px;
     background-color: yellow;
-    border: 2px solid black;
-    z-index: 9999;
+    border: 4px solid black;
+    z-index: 2;
   }
 }
 
