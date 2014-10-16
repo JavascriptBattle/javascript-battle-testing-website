@@ -1,8 +1,6 @@
 
 var Game = Backbone.Model.extend({
 
-  url: '/fakeUrl',
-
   clientSideGame: {
     played: false
   },
