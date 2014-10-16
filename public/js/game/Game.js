@@ -1,6 +1,8 @@
 
 var Game = Backbone.Model.extend({
 
+  url: '/fakeUrl',
+
   clientSideGame: {
     played: false
   },
@@ -34,7 +36,7 @@ var Game = Backbone.Model.extend({
     }
     for (var i=0; i<game.heroes.length; i++) {
       var result = game.heroes[i].getMove();
-      game.heroes[i].move = result.move
+      game.heroes[i].move = result.move;
       game.heroes[i].name = result.aiType;
     }
 
