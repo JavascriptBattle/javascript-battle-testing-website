@@ -1,7 +1,24 @@
 var GameView = Backbone.View.extend({
   tagName: 'div',
   className: 'outer',
+  count: 0,
+  fetcher: function(){
+    var that = this;
+    this.model.fetch({
+      error: function(){
+        console.log(that.count);
+        that.$el.html('<br><center><h2>There was an error connecting to the DB.\nThanks for your patience.</h2></center>');
+        if (that.count <= 10) {
+          window.setTimeout(function(){
+            that.fetcher();
+          }, 1500);
+        }
+        that.count++;
+      }
+    });
+  },
   initialize: function(){
+    this.fetcher();
     this.$el.html('<br><div class="centered"><img class="start-screen" src="../../img/start-screen.png"></div>');
     console.log('Welcome to the hero tester!!!');
     this.model.on('finished', function() {

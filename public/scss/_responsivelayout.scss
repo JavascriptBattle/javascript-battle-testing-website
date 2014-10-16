@@ -61,6 +61,14 @@
   .turn {
     bottom: none;
   }
+  .announce {
+    position: absolute;
+    top: 8vw;
+    width: 100%;
+    height: 8vw;
+    background-color: yellow;
+    border: 4px solid black;
+  }
 }
 
 @media (max-width: 1098px){
@@ -70,6 +78,14 @@
     bottom: -12%;
     left: 3px;
     margin: -3px;
+  }
+  .announce {
+    position: absolute;
+    top: 8vw;
+    width: 100%;
+    height: 12vw;
+    background-color: yellow;
+    border: 4px solid black;
   }
 }
 
@@ -94,6 +110,15 @@
     .sprite {
       max-height: 2.8vw;
     }
+  }
+  .announce {
+    position: absolute;
+    top: 8vw;
+    width: 100%;
+    height: 18vw;
+    background-color: yellow;
+    border: 4px solid black;
+    z-index: 9999;
   }
 }
 
@@ -157,6 +182,15 @@
 }
 
 @media (max-width: 763px) {
+  .announce {
+    position: absolute;
+    top: 8vw;
+    width: 100%;
+    height: 20vw;
+    background-color: yellow;
+    border: 4px solid black;
+    z-index: 9999;
+  }
   @-moz-document url-prefix() {
     .team-info {
       visibility: hidden;
@@ -167,6 +201,18 @@
     .sprite {
       max-height: 3.1vw;
     }
+  }
+}
+
+@media (max-width: 560px) {
+  .announce {
+    position: absolute;
+    top: 8vw;
+    width: 100%;
+    height: 175px;
+    background-color: yellow;
+    border: 2px solid black;
+    z-index: 9999;
   }
 }
 
